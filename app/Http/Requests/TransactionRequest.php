@@ -11,6 +11,24 @@ class TransactionRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('amount')) {
+            $raw = $this->input('amount');
+            if (is_string($raw)) {
+                // Remove separador de milhar e converte vírgula para ponto se necessário
+                $cleaned = str_replace(' ', '', $raw);
+                if (str_contains($cleaned, ',') && ! str_contains($cleaned, '.')) {
+                    $cleaned = str_replace(',', '.', $cleaned);
+                } elseif (str_contains($cleaned, '.') && str_contains($cleaned, ',')) {
+                    $cleaned = str_replace('.', '', $cleaned);
+                    $cleaned = str_replace(',', '.', $cleaned);
+                }
+                $this->merge(['amount' => $cleaned]);
+            }
+        }
+    }
+
     public function rules(): array
     {
         return [

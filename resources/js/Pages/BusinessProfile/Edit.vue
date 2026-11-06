@@ -51,10 +51,26 @@ const form = useForm({
     logo: null as File | null,
 });
 
+const clientSideLogoError = ref<string | null>(null);
+
 const onLogoSelected = (event: Event) => {
+    clientSideLogoError.value = null;
+    form.clearErrors('logo');
+
     const target = event.target as HTMLInputElement;
     if (target.files && target.files[0]) {
         const file = target.files[0];
+
+        // Validação imediata no frontend (2MB = 2 * 1024 * 1024 bytes)
+        const maxBytes = 2 * 1024 * 1024;
+        if (file.size > maxBytes) {
+            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+            clientSideLogoError.value = `A imagem selecionada possui ${sizeMB}MB. O tamanho máximo permitido é de 2MB. Por favor, escolha uma imagem mais leve.`;
+            target.value = '';
+            form.logo = null;
+            return;
+        }
+
         form.logo = file;
         logoPreview.value = URL.createObjectURL(file);
     }
@@ -124,7 +140,7 @@ const submit = () => {
                                     <p class="text-xs text-gray-500">
                                         PNG, JPG ou WEBP até 2MB. Usado no cabeçalho de orçamentos e recibos emitidos.
                                     </p>
-                                    <InputError :message="form.errors.logo" class="mt-1" />
+                                    <InputError :message="clientSideLogoError || form.errors.logo" class="mt-1" />
                                 </div>
                             </div>
                         </div>

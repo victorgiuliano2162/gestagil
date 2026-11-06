@@ -17,7 +17,7 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        $businessProfile = $user->businessProfile;
+        $businessProfile = $user->businessProfile()->first();
         $totalClients = Client::where('user_id', $user->id)->count();
 
         $startOfMonth = Carbon::now()->startOfMonth()->toDateString();

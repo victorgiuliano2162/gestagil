@@ -74,7 +74,7 @@ class ReceiptController extends Controller
                 ->with('info', 'Já existe um recibo ativo para este lançamento.');
         }
 
-        $businessProfile = $user->businessProfile;
+        $businessProfile = $user->businessProfile()->first();
 
         return Inertia::render('Receipts/Create', [
             'transaction' => $transaction,
@@ -105,7 +105,7 @@ class ReceiptController extends Controller
                 ->with('error', 'Já existe um recibo emitido ativo para esta receita.');
         }
 
-        $profile = $user->businessProfile;
+        $profile = $user->businessProfile()->first();
         $storeName = $profile?->store_name ?: $profile?->display_name ?: $user->name;
 
         $fullAddress = null;

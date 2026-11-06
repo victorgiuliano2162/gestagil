@@ -11,6 +11,23 @@ class AppointmentRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('expected_amount')) {
+            $raw = $this->input('expected_amount');
+            if (is_string($raw)) {
+                $cleaned = str_replace(' ', '', $raw);
+                if (str_contains($cleaned, ',') && ! str_contains($cleaned, '.')) {
+                    $cleaned = str_replace(',', '.', $cleaned);
+                } elseif (str_contains($cleaned, '.') && str_contains($cleaned, ',')) {
+                    $cleaned = str_replace('.', '', $cleaned);
+                    $cleaned = str_replace(',', '.', $cleaned);
+                }
+                $this->merge(['expected_amount' => $cleaned]);
+            }
+        }
+    }
+
     public function rules(): array
     {
         return [

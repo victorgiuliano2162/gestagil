@@ -31,7 +31,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/business-profile', [BusinessProfileController::class, 'edit'])->name('business-profile.edit');
-    Route::patch('/business-profile', [BusinessProfileController::class, 'update'])->name('business-profile.update');
+    Route::post('/business-profile', [BusinessProfileController::class, 'update'])->name('business-profile.update');
+    Route::get('/business-profile/logo', [BusinessProfileController::class, 'logo'])->name('business-profile.logo');
 
     Route::resource('clients', ClientController::class);
 });

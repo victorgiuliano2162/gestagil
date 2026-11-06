@@ -13,6 +13,8 @@ class BusinessProfile extends Model
     protected $fillable = [
         'user_id',
         'display_name',
+        'store_name',
+        'activity_description',
         'document_type',
         'document_number',
         'phone',

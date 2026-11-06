@@ -3,11 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Appointment;
+use App\Models\Client;
+use App\Models\Receipt;
+use App\Models\Transaction;
+use App\Models\TransactionCategory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -53,7 +60,23 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        $user->delete();
+        // Exclusão em ordem topológica reversa dentro de transação atômica (LGPD / SQLite FKs)
+        DB::transaction(function () use ($user) {
+            Receipt::where('user_id', $user->id)->delete();
+            Transaction::withTrashed()->where('user_id', $user->id)->forceDelete();
+            Appointment::withTrashed()->where('user_id', $user->id)->forceDelete();
+            TransactionCategory::where('user_id', $user->id)->delete();
+            Client::withTrashed()->where('user_id', $user->id)->forceDelete();
+
+            if ($user->businessProfile) {
+                if ($user->businessProfile->logo_path) {
+                    Storage::disk('public')->delete($user->businessProfile->logo_path);
+                }
+                $user->businessProfile()->delete();
+            }
+
+            $user->delete();
+        });
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

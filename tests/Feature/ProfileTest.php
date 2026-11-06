@@ -67,6 +67,67 @@ test('user can delete their account', function () {
     $this->assertNull($user->fresh());
 });
 
+test('user can delete account with full relational graph in reverse topological order', function () {
+    $user = User::factory()->withBusinessProfile()->withDefaultCategories()->create();
+
+    $client = \App\Models\Client::create([
+        'user_id' => $user->id,
+        'name' => 'Cliente Vinculado',
+    ]);
+
+    $appointment = \App\Models\Appointment::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'service_description' => 'Serviço',
+        'service_at' => now(),
+        'status' => \App\Enums\AppointmentStatus::Completed,
+    ]);
+
+    $transaction = \App\Models\Transaction::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'appointment_id' => $appointment->id,
+        'type' => 'income',
+        'amount_cents' => 5000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Venda',
+        'payment_method' => \App\Enums\PaymentMethod::Pix,
+    ]);
+
+    \App\Models\Receipt::create([
+        'user_id' => $user->id,
+        'transaction_id' => $transaction->id,
+        'client_id' => $client->id,
+        'code' => \Illuminate\Support\Str::uuid()->toString(),
+        'year' => (int) now()->format('Y'),
+        'number' => 1,
+        'status' => 'issued',
+        'issued_at' => now(),
+        'amount_cents' => 5000,
+        'payment_method' => 'pix',
+        'description' => 'Recibo',
+        'payer_name' => 'Cliente Vinculado',
+        'issuer_snapshot' => ['store_name' => 'Loja'],
+    ]);
+
+    $response = $this
+        ->actingAs($user)
+        ->delete('/profile', [
+            'password' => 'password',
+        ]);
+
+    $response
+        ->assertSessionHasNoErrors()
+        ->assertRedirect('/');
+
+    $this->assertGuest();
+    $this->assertNull($user->fresh());
+    $this->assertDatabaseMissing('clients', ['id' => $client->id]);
+    $this->assertDatabaseMissing('appointments', ['id' => $appointment->id]);
+    $this->assertDatabaseMissing('transactions', ['id' => $transaction->id]);
+    $this->assertDatabaseMissing('receipts', ['transaction_id' => $transaction->id]);
+});
+
 test('correct password must be provided to delete account', function () {
     $user = User::factory()->create();
 

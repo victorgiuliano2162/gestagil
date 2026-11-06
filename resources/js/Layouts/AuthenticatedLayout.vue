@@ -46,6 +46,12 @@ const showingNavigationDropdown = ref(false);
                                     Clientes
                                 </NavLink>
                                 <NavLink
+                                    :href="route('appointments.index')"
+                                    :active="route().current('appointments.*')"
+                                >
+                                    Atendimentos
+                                </NavLink>
+                                <NavLink
                                     :href="route('business-profile.edit')"
                                     :active="route().current('business-profile.*')"
                                 >
@@ -163,6 +169,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('clients.*')"
                         >
                             Clientes
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('appointments.index')"
+                            :active="route().current('appointments.*')"
+                        >
+                            Atendimentos
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('business-profile.edit')"

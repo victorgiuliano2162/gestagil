@@ -14,7 +14,7 @@ class BackupRun extends Command
      *
      * @var string
      */
-    protected $signature = 'backup:run {--label= : Optional label for backup (e.g., pre-deploy)}';
+    protected $signature = 'backup:run {--label= : Optional label for backup (e.g., pre-deploy)} {--destination= : Custom destination directory for backup}';
 
     /**
      * The console command description.
@@ -37,12 +37,12 @@ class BackupRun extends Command
 
         $dbPath = config('database.connections.sqlite.database');
 
-        if (! file_exists($dbPath)) {
+        if ($dbPath !== ':memory:' && ! file_exists($dbPath)) {
             $this->error("Database file not found at: {$dbPath}");
             return self::FAILURE;
         }
 
-        $backupDir = env('BACKUP_PATH', base_path('backups'));
+        $backupDir = $this->option('destination') ?: env('BACKUP_PATH', base_path('backups'));
 
         if (! File::isDirectory($backupDir)) {
             File::makeDirectory($backupDir, 0755, true);

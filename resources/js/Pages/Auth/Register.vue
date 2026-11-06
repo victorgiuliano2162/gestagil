@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Checkbox from '@/Components/Checkbox.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -11,6 +12,7 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    terms: false,
 });
 
 const submit = () => {
@@ -24,11 +26,11 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+        <Head title="Criar Conta - GestÁgil" />
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" value="Nome Completo" />
 
                 <TextInput
                     id="name"
@@ -44,7 +46,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="E-mail" />
 
                 <TextInput
                     id="email"
@@ -59,7 +61,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Senha" />
 
                 <TextInput
                     id="password"
@@ -76,7 +78,7 @@ const submit = () => {
             <div class="mt-4">
                 <InputLabel
                     for="password_confirmation"
-                    value="Confirm Password"
+                    value="Confirmar Senha"
                 />
 
                 <TextInput
@@ -94,12 +96,24 @@ const submit = () => {
                 />
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
+            <div class="mt-4">
+                <label class="flex items-center">
+                    <Checkbox name="terms" v-model:checked="form.terms" required />
+                    <span class="ms-2 text-sm text-gray-600">
+                        Concordo com os
+                        <a target="_blank" href="/termos" class="underline text-indigo-600 hover:text-indigo-900">Termos de Uso</a>
+                        e Política de Privacidade.
+                    </span>
+                </label>
+                <InputError class="mt-2" :message="form.errors.terms" />
+            </div>
+
+            <div class="mt-6 flex items-center justify-between">
                 <Link
                     :href="route('login')"
                     class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
-                    Already registered?
+                    Já possui conta? Entrar
                 </Link>
 
                 <PrimaryButton
@@ -107,7 +121,7 @@ const submit = () => {
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Register
+                    Criar Conta
                 </PrimaryButton>
             </div>
         </form>

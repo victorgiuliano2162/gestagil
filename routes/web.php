@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BusinessProfileController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
@@ -35,6 +36,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/business-profile/logo', [BusinessProfileController::class, 'logo'])->name('business-profile.logo');
 
     Route::resource('clients', ClientController::class);
+
+    Route::resource('appointments', AppointmentController::class);
+    Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status');
 });
 
 require __DIR__.'/auth.php';

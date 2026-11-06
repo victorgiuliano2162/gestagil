@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BusinessProfileController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
@@ -27,6 +28,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/business-profile', [BusinessProfileController::class, 'edit'])->name('business-profile.edit');
+    Route::patch('/business-profile', [BusinessProfileController::class, 'update'])->name('business-profile.update');
 
     Route::resource('clients', ClientController::class);
 });

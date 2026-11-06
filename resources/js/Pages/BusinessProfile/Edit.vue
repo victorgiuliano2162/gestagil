@@ -21,12 +21,18 @@ interface BusinessProfile {
     neighborhood: string | null;
     city: string | null;
     state: string | null;
+    logo_path: string | null;
+    logo_url: string | null;
 }
 
 const props = defineProps<{
     profile: BusinessProfile;
     status?: string;
 }>();
+
+import { ref } from 'vue';
+
+const logoPreview = ref<string | null>(props.profile.logo_url || null);
 
 const form = useForm({
     store_name: props.profile.store_name || '',
@@ -42,10 +48,23 @@ const form = useForm({
     neighborhood: props.profile.neighborhood || '',
     city: props.profile.city || '',
     state: props.profile.state || '',
+    logo: null as File | null,
 });
 
+const onLogoSelected = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+        const file = target.files[0];
+        form.logo = file;
+        logoPreview.value = URL.createObjectURL(file);
+    }
+};
+
 const submit = () => {
-    form.patch(route('business-profile.update'));
+    form.post(route('business-profile.update'), {
+        preserveScroll: true,
+        forceFormData: true,
+    });
 };
 </script>
 
@@ -72,6 +91,44 @@ const submit = () => {
                     </header>
 
                     <form @submit.prevent="submit" class="space-y-6">
+                        <!-- Logotipo da Loja -->
+                        <div class="rounded-lg border border-gray-200 bg-gray-50/50 p-4">
+                            <InputLabel value="Logotipo da Loja / Comércio" class="mb-2" />
+                            <div class="flex flex-col sm:flex-row items-center gap-5">
+                                <div class="h-24 w-24 shrink-0 rounded-lg border-2 border-dashed border-gray-300 bg-white flex items-center justify-center overflow-hidden shadow-inner">
+                                    <img
+                                        v-if="logoPreview"
+                                        :src="logoPreview"
+                                        alt="Logotipo da Loja"
+                                        class="h-full w-full object-contain p-1"
+                                    />
+                                    <div v-else class="text-center p-2">
+                                        <span class="text-2xl">🏪</span>
+                                        <p class="text-[10px] text-gray-400 mt-1">Sem logo</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5 text-center sm:text-left">
+                                    <input
+                                        type="file"
+                                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                                        id="logo_file"
+                                        class="hidden"
+                                        @change="onLogoSelected"
+                                    />
+                                    <label
+                                        for="logo_file"
+                                        class="cursor-pointer inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                                    >
+                                        Escolher imagem
+                                    </label>
+                                    <p class="text-xs text-gray-500">
+                                        PNG, JPG ou WEBP até 2MB. Usado no cabeçalho de orçamentos e recibos emitidos.
+                                    </p>
+                                    <InputError :message="form.errors.logo" class="mt-1" />
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Nome da Loja & Nome de Exibição -->
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>

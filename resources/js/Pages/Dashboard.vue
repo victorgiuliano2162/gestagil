@@ -14,7 +14,7 @@ interface RecentTransaction {
     type: 'income' | 'expense';
     amount_cents: number;
     description: string;
-    occurred_at: string;
+    occurred_on: string;
     payment_method: string;
     category?: { id: number; name: string } | null;
     client?: { id: number; name: string } | null;
@@ -235,7 +235,7 @@ const formatDate = (dateStr: string): string => {
                                     <span class="text-sm font-bold" :class="t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">
                                         {{ t.type === 'income' ? '+' : '-' }} {{ formatCurrency(t.amount_cents) }}
                                     </span>
-                                    <p class="text-xs text-gray-400">{{ formatDate(t.occurred_at) }}</p>
+                                    <p class="text-xs text-gray-400">{{ formatDate(t.occurred_on) }}</p>
                                 </div>
                             </li>
                         </ul>

@@ -23,12 +23,18 @@ Route::get('/', function () {
 });
 
 Route::get('/termos', function () {
-    return response('<h1>Termos de Uso e Política de Privacidade</h1><p>Versão inicial do ambiente acadêmico GestÁgil.</p>');
+    return Inertia::render('Legal/Terms');
 })->name('terms');
 
-// Rotas públicas de verificação e download de recibos
-Route::get('/r/{code}', [PublicReceiptController::class, 'show'])->name('receipts.public.show');
-Route::get('/r/{code}/pdf', [PublicReceiptController::class, 'pdf'])->name('receipts.public.pdf');
+Route::get('/privacidade', function () {
+    return Inertia::render('Legal/Privacy');
+})->name('privacy');
+
+// Rotas públicas de verificação e download de recibos com rate-limiting
+Route::middleware('throttle:30,1')->group(function () {
+    Route::get('/r/{code}', [PublicReceiptController::class, 'show'])->name('receipts.public.show');
+    Route::get('/r/{code}/pdf', [PublicReceiptController::class, 'pdf'])->name('receipts.public.pdf');
+});
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -53,7 +59,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('receipts', ReceiptController::class)->only(['index', 'create', 'store', 'show']);
     Route::get('/receipts/{receipt}/pdf', [ReceiptController::class, 'pdf'])->name('receipts.pdf');
     Route::post('/receipts/{receipt}/cancel', [ReceiptController::class, 'cancel'])->name('receipts.cancel');
-    Route::post('/receipts/{receipt}/email', [ReceiptController::class, 'email'])->name('receipts.email');
+    Route::post('/receipts/{receipt}/email', [ReceiptController::class, 'email'])
+        ->middleware('throttle:10,60')
+        ->name('receipts.email');
 
     Route::get('/relatorios', [ReportController::class, 'index'])->name('reports.index');
 });

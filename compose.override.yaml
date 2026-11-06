@@ -1,0 +1,25 @@
+services:
+  app:
+    volumes:
+      - .:/var/www/html
+      - db-data:/data/db
+      - backups:/backups
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+
+  vite:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "5173:5173"
+    command: ["npm", "run", "dev", "--", "--host"]
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+      - "1025:1025"

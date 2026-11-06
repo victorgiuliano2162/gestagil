@@ -1,0 +1,19 @@
+{
+	{$CADDY_GLOBAL_OPTIONS}
+	frankenphp {
+		{$FRANKENPHP_CONFIG}
+	}
+}
+
+{$SERVER_NAME:http://:8080} {
+	root * /var/www/html/public
+	encode zstd br gzip
+
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	php_server
+}

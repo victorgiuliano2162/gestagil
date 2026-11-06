@@ -5,6 +5,7 @@ use App\Http\Controllers\BusinessProfileController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -39,6 +40,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('appointments', AppointmentController::class);
     Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status');
+
+    Route::resource('transactions', TransactionController::class)->only(['index', 'create', 'store', 'destroy']);
 });
 
 require __DIR__.'/auth.php';

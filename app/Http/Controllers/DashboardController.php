@@ -20,17 +20,17 @@ class DashboardController extends Controller
         $businessProfile = $user->businessProfile;
         $totalClients = Client::where('user_id', $user->id)->count();
 
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
+        $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
+        $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
 
         $monthIncomeCents = (int) Transaction::where('user_id', $user->id)
             ->where('type', 'income')
-            ->whereBetween('occurred_at', [$startOfMonth, $endOfMonth])
+            ->whereBetween('occurred_on', [$startOfMonth, $endOfMonth])
             ->sum('amount_cents');
 
         $monthExpenseCents = (int) Transaction::where('user_id', $user->id)
             ->where('type', 'expense')
-            ->whereBetween('occurred_at', [$startOfMonth, $endOfMonth])
+            ->whereBetween('occurred_on', [$startOfMonth, $endOfMonth])
             ->sum('amount_cents');
 
         $inProgressAppointments = Appointment::where('user_id', $user->id)
@@ -59,7 +59,7 @@ class DashboardController extends Controller
                 ->get(['id', 'name', 'phone_e164', 'created_at']),
             'recent_transactions' => Transaction::where('user_id', $user->id)
                 ->with(['category:id,name', 'client:id,name'])
-                ->latest('occurred_at')
+                ->latest('occurred_on')
                 ->take(5)
                 ->get(),
         ];

@@ -31,8 +31,12 @@ const props = defineProps<{
 }>();
 
 import { ref } from 'vue';
+import { optimizeImage } from '@/Utils/imageCompressor';
 
 const logoPreview = ref<string | null>(props.profile.logo_url || null);
+const isOptimizingLogo = ref(false);
+const logoOptimizationFeedback = ref<string | null>(null);
+const clientSideLogoError = ref<string | null>(null);
 
 const form = useForm({
     store_name: props.profile.store_name || '',
@@ -51,28 +55,39 @@ const form = useForm({
     logo: null as File | null,
 });
 
-const clientSideLogoError = ref<string | null>(null);
-
-const onLogoSelected = (event: Event) => {
+const onLogoSelected = async (event: Event) => {
     clientSideLogoError.value = null;
+    logoOptimizationFeedback.value = null;
     form.clearErrors('logo');
 
     const target = event.target as HTMLInputElement;
     if (target.files && target.files[0]) {
         const file = target.files[0];
+        isOptimizingLogo.value = true;
 
-        // Validação imediata no frontend (2MB = 2 * 1024 * 1024 bytes)
-        const maxBytes = 2 * 1024 * 1024;
-        if (file.size > maxBytes) {
-            const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-            clientSideLogoError.value = `A imagem selecionada possui ${sizeMB}MB. O tamanho máximo permitido é de 2MB. Por favor, escolha uma imagem mais leve.`;
+        try {
+            const result = await optimizeImage(file, {
+                maxWidth: 800,
+                maxHeight: 800,
+                quality: 0.85,
+            });
+
+            form.logo = result.file;
+            logoPreview.value = result.previewUrl;
+
+            // Feedback visual amigável do ganho de compressão
+            const origKB = Math.round(result.originalSizeBytes / 1024);
+            const optKB = Math.round(result.optimizedSizeBytes / 1024);
+            if (origKB > optKB) {
+                logoOptimizationFeedback.value = `Imagem otimizada com sucesso! Reduzida de ${origKB}KB para apenas ${optKB}KB.`;
+            }
+        } catch (error: any) {
+            clientSideLogoError.value = error.message || 'Erro ao processar imagem.';
             target.value = '';
             form.logo = null;
-            return;
+        } finally {
+            isOptimizingLogo.value = false;
         }
-
-        form.logo = file;
-        logoPreview.value = URL.createObjectURL(file);
     }
 };
 
@@ -131,14 +146,21 @@ const submit = () => {
                                         class="hidden"
                                         @change="onLogoSelected"
                                     />
-                                    <label
-                                        for="logo_file"
-                                        class="cursor-pointer inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
-                                    >
-                                        Escolher imagem
-                                    </label>
+                                    <div class="flex items-center gap-2">
+                                        <label
+                                            for="logo_file"
+                                            class="cursor-pointer inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+                                            :class="{ 'opacity-50 pointer-events-none': isOptimizingLogo }"
+                                        >
+                                            <span v-if="isOptimizingLogo" class="animate-spin mr-1.5">⏳</span>
+                                            {{ isOptimizingLogo ? 'Otimizando foto...' : 'Escolher imagem' }}
+                                        </label>
+                                    </div>
                                     <p class="text-xs text-gray-500">
-                                        PNG, JPG ou WEBP até 2MB. Usado no cabeçalho de orçamentos e recibos emitidos.
+                                        PNG, JPG ou WEBP. Imagens de celular são comprimidas automaticamente para upload ultra-rápido.
+                                    </p>
+                                    <p v-if="logoOptimizationFeedback" class="text-xs text-emerald-600 font-medium">
+                                        ✓ {{ logoOptimizationFeedback }}
                                     </p>
                                     <InputError :message="clientSideLogoError || form.errors.logo" class="mt-1" />
                                 </div>

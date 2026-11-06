@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicReceiptController;
 use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +54,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/receipts/{receipt}/pdf', [ReceiptController::class, 'pdf'])->name('receipts.pdf');
     Route::post('/receipts/{receipt}/cancel', [ReceiptController::class, 'cancel'])->name('receipts.cancel');
     Route::post('/receipts/{receipt}/email', [ReceiptController::class, 'email'])->name('receipts.email');
+
+    Route::get('/relatorios', [ReportController::class, 'index'])->name('reports.index');
 });
 
 require __DIR__.'/auth.php';

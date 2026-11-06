@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\BusinessProfile;
 use App\Models\User;
+use Database\Seeders\DefaultCategoriesSeeder;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
@@ -35,13 +38,28 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'terms' => 'accepted',
+        ], [
+            'terms.accepted' => 'É necessário aceitar os termos de uso para prosseguir.',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        $user = DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'terms_accepted_at' => now(),
+            ]);
+
+            BusinessProfile::create([
+                'user_id' => $user->id,
+                'display_name' => $user->name,
+            ]);
+
+            app(DefaultCategoriesSeeder::class)->run($user);
+
+            return $user;
+        });
 
         event(new Registered($user));
 

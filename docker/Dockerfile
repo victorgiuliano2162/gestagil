@@ -9,13 +9,13 @@ RUN npm run build
 # Stage 2: Vendor dependencies
 FROM composer:2 AS vendor
 WORKDIR /app
-COPY composer*.json ./
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs
+COPY composer.json composer.lock* ./
+RUN composer install --no-dev --no-scripts --no-interaction --prefer-dist --ignore-platform-reqs
 COPY . .
 RUN composer dump-autoload --optimize --no-dev
 
 # Stage 3: Runtime environment
-FROM dunglas/frankenphp:1-php8.3-alpine AS runtime
+FROM dunglas/frankenphp:1-php8.4-alpine AS runtime
 
 # Install system dependencies and PHP extensions
 RUN apk add --no-cache \

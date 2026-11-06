@@ -207,7 +207,14 @@ const deleteTransaction = (id: number) => {
                                         :class="t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">
                                         {{ t.type === 'income' ? '+' : '-' }} {{ formatCurrency(t.amount_cents) }}
                                     </td>
-                                    <td class="whitespace-nowrap px-4 py-3 text-right text-xs">
+                                    <td class="whitespace-nowrap px-4 py-3 text-right text-xs space-x-2">
+                                        <Link
+                                            v-if="t.type === 'income'"
+                                            :href="route('receipts.create', { transaction_id: t.id })"
+                                            class="inline-flex items-center text-indigo-600 hover:text-indigo-900 font-semibold bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded transition"
+                                        >
+                                            📄 Recibo
+                                        </Link>
                                         <button
                                             @click="deleteTransaction(t.id)"
                                             class="text-rose-600 hover:text-rose-900 font-semibold"

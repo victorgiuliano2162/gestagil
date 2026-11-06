@@ -58,6 +58,12 @@ const showingNavigationDropdown = ref(false);
                                     Caixa
                                 </NavLink>
                                 <NavLink
+                                    :href="route('receipts.index')"
+                                    :active="route().current('receipts.*')"
+                                >
+                                    Recibos
+                                </NavLink>
+                                <NavLink
                                     :href="route('business-profile.edit')"
                                     :active="route().current('business-profile.*')"
                                 >
@@ -187,6 +193,12 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('transactions.*')"
                         >
                             Caixa
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('receipts.index')"
+                            :active="route().current('receipts.*')"
+                        >
+                            Recibos
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('business-profile.edit')"

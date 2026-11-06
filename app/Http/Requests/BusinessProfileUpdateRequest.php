@@ -27,6 +27,7 @@ class BusinessProfileUpdateRequest extends FormRequest
             'neighborhood' => ['nullable', 'string', 'max:80'],
             'city' => ['nullable', 'string', 'max:80'],
             'state' => ['nullable', 'string', 'size:2'],
+            'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
         ];
     }
 
@@ -35,6 +36,9 @@ class BusinessProfileUpdateRequest extends FormRequest
         return [
             'display_name.required' => 'O nome de exibição é obrigatório.',
             'state.size' => 'O estado (UF) deve ter 2 letras (ex: PE, SP).',
+            'logo.image' => 'O logotipo deve ser um arquivo de imagem válido.',
+            'logo.mimes' => 'O logotipo deve estar no formato PNG, JPG, JPEG ou WEBP.',
+            'logo.max' => 'O logotipo não pode ultrapassar 2MB de tamanho.',
         ];
     }
 }

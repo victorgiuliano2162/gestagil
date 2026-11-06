@@ -7,6 +7,7 @@ use App\Traits\BelongsToUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Transaction extends Model
@@ -48,5 +49,10 @@ class Transaction extends Model
     public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class)->withTrashed();
+    }
+
+    public function receipt(): HasOne
+    {
+        return $this->hasOne(Receipt::class);
     }
 }

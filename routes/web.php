@@ -5,6 +5,8 @@ use App\Http\Controllers\BusinessProfileController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicReceiptController;
+use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +24,10 @@ Route::get('/', function () {
 Route::get('/termos', function () {
     return response('<h1>Termos de Uso e Política de Privacidade</h1><p>Versão inicial do ambiente acadêmico GestÁgil.</p>');
 })->name('terms');
+
+// Rotas públicas de verificação e download de recibos
+Route::get('/r/{code}', [PublicReceiptController::class, 'show'])->name('receipts.public.show');
+Route::get('/r/{code}/pdf', [PublicReceiptController::class, 'pdf'])->name('receipts.public.pdf');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -42,6 +48,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status');
 
     Route::resource('transactions', TransactionController::class)->only(['index', 'create', 'store', 'destroy']);
+
+    Route::resource('receipts', ReceiptController::class)->only(['index', 'create', 'store', 'show']);
+    Route::get('/receipts/{receipt}/pdf', [ReceiptController::class, 'pdf'])->name('receipts.pdf');
+    Route::post('/receipts/{receipt}/cancel', [ReceiptController::class, 'cancel'])->name('receipts.cancel');
+    Route::post('/receipts/{receipt}/email', [ReceiptController::class, 'email'])->name('receipts.email');
 });
 
 require __DIR__.'/auth.php';

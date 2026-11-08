@@ -13,12 +13,12 @@
   <img src="https://img.shields.io/badge/Inertia.js-2.x-9553E9?style=flat-square&logo=inertia" alt="Inertia.js">
   <img src="https://img.shields.io/badge/SQLite-WAL%20Mode-003B57?style=flat-square&logo=sqlite" alt="SQLite">
   <img src="https://img.shields.io/badge/Docker-FrankenPHP-009639?style=flat-square&logo=docker" alt="Docker">
-  <img src="https://img.shields.io/badge/Licen%C3%A7a-MIT-blue?style=flat-square" alt="Licença">
+  <img src="https://img.shields.io/badge/Licenca-MIT-blue?style=flat-square" alt="Licença">
 </p>
 
 ---
 
-## 📌 Sobre o GestÁgil
+## Sobre o GestÁgil
 
 O **GestÁgil** é uma aplicação web de execução local (*self-hosted*), desenhada sob medida para profissionais autônomos, prestadores de serviços e Microempreendedores Individuais (MEI). 
 
@@ -26,13 +26,13 @@ A proposta central é eliminar de vez as anotações em cadernos, papéis soltos
 
 ---
 
-## 👤 Quem Atendemos: A Persona
+## Quem Atendemos: A Persona
 
 <p align="center">
   <img src="assets/gestagil-icon-removebg.png" alt="Ícone GestÁgil" width="70">
 </p>
 
-### **Márcio da Silva** (34 anos) — *"O Profissional Autônomo e Pequeno Comerciante"*
+### Márcio da Silva (34 anos) — *"O Profissional Autônomo e Pequeno Comerciante"*
 
 - **Contexto:** Mecânico, técnico, encanador, eletricista ou dono de uma pequena loja/oficina de bairro. Trabalha sozinho ou com auxílio de um familiar/ajudante.
 - **Dispositivo Principal:** Celular Android intermediário (com uso intenso do WhatsApp) e um notebook simples no caixa/balcão.
@@ -53,7 +53,7 @@ A proposta central é eliminar de vez as anotações em cadernos, papéis soltos
 
 ---
 
-## 🔄 Fluxos de Funcionalidade
+## Fluxos de Funcionalidade
 
 O GestÁgil conecta todo o ciclo operacional de uma prestação de serviço ou venda, do primeiro contato ao fechamento do mês:
 
@@ -66,41 +66,41 @@ flowchart LR
     E --> F["6. Backup & Dados<br/>(Export / Merge Seguro)"]
 ```
 
-### 1. 🏪 Minha Loja (Identidade do Estabelecimento)
+### 1. Minha Loja (Identidade do Estabelecimento)
 - Definição do Nome Fantasia, Razão Social, CPF/CNPJ, telefone e endereço.
 - Upload da logo personalizada do negócio, estampada automaticamente em todos os recibos e relatórios impressos.
 - Rodapé e mensagens de agradecimento customizadas para os clientes.
 
-### 2. 👥 Clientes e Atendimentos
+### 2. Clientes e Atendimentos
 - **Cadastro Rápido:** Nome, telefone/WhatsApp (E.164), documento e observações técnicas.
-- **Ciclo do Atendimento:** Agendamento do serviço com valor previsto ➔ Acompanhamento do status (`Em andamento`, `Concluído`, `Cancelado`) ➔ Conclusão com vínculo direto ao fluxo de caixa.
+- **Ciclo do Atendimento:** Agendamento do serviço com valor previsto -> Acompanhamento do status (`Em andamento`, `Concluído`, `Cancelado`) -> Conclusão com vínculo direto ao fluxo de caixa.
 - Histórico completo de serviços por cliente.
 
-### 3. 💰 Fluxo de Caixa (Lançamentos)
+### 3. Fluxo de Caixa (Lançamentos)
 - Registro simplificado de **Receitas** (vinculadas ou não a atendimentos) e **Despesas** (peças, combustível, ferramentas, impostos).
 - Categorização clara com tags de cores para visualização rápida.
 - Formas de pagamento adaptadas ao cotidiano brasileiro: **Pix**, **Dinheiro**, **Cartão de Crédito/Débito** e **Outros**.
 
-### 4. 📄 Emissão e Envio de Recibos Profissionais
+### 4. Emissão e Envio de Recibos Profissionais
 - Emissão em 1 clique a partir de qualquer receita recebida.
 - Numeração sequencial atômica por ano/usuário (`Nº 001/2026`).
-- Conversão automática do valor numérico para **valor por extenso em Reais** (ex: *R$ 250,00 ➔ "duzentos e cinquenta reais"*).
+- Conversão automática do valor numérico para **valor por extenso em Reais** (ex: *R$ 250,00 -> "duzentos e cinquenta reais"*).
 - **Geração de PDF sob demanda** (< 100 ms) via DomPDF.
 - **Verificação Pública:** Cada recibo gera um link seguro com UUID (`/r/{code}`) para compartilhamento direto no WhatsApp do cliente, permitindo que ele valide e baixe o PDF sem precisar de login.
 
-### 5. 📊 Relatórios Operacionais
+### 5. Relatórios Operacionais
 - Painel consolidado com entradas, saídas, saldo operacional e lucratividade do período.
 - Ranking dos clientes mais recorrentes e serviços mais lucrativos.
 - Comparativos mensais e anuais para tomada de decisão sem necessidade de consultoria contábil.
 
-### 6. 🛡️ Backup e Restauração de Dados
+### 6. Backup e Restauração de Dados
 - **Exportação Estruturada (.json):** Backup completo dos dados do usuário envelopado com UUIDs v7, garantindo portabilidade entre máquinas.
 - **Restauração Inteligente com Mesclagem (Merge):** Adiciona novos registros sem duplicar clientes ou lançamentos já existentes.
 - **Sobrescrita Segura com Double Check:** Substituição total de dados com confirmação explícita de segurança (digitação de `SOBRESCREVER`) e geração automática de cópia de emergência pré-restauração.
 
 ---
 
-## 🛠️ Stack Tecnológica
+## Stack Tecnológica
 
 | Camada | Tecnologia | Destaque |
 | :--- | :--- | :--- |
@@ -113,7 +113,7 @@ flowchart LR
 
 ---
 
-## 🚀 Como Executar o Projeto
+## Como Executar o Projeto
 
 ### Pré-requisitos
 - **PHP 8.3+** e **Composer**
@@ -165,7 +165,7 @@ Acesse em: `http://localhost:8080`
 
 ---
 
-## 🧪 Testes Automatizados
+## Testes Automatizados
 
 O GestÁgil possui cobertura rigorosa de testes unitários e de feature utilizando o **Pest**:
 
@@ -179,7 +179,7 @@ make test
 
 ---
 
-## 📚 Documentação Técnica Completa
+## Documentação Técnica Completa
 
 Para aprofundar na engenharia e decisões do projeto, consulte a pasta [`docs/`](docs/):
 
@@ -194,6 +194,6 @@ Para aprofundar na engenharia e decisões do projeto, consulte a pasta [`docs/`]
 
 ---
 
-## 📄 Licença
+## Licença
 
 Este projeto é disponibilizado sob a licença [MIT](LICENSE).

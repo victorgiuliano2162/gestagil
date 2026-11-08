@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BusinessProfileController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
@@ -64,6 +65,10 @@ Route::middleware('auth')->group(function () {
         ->name('receipts.email');
 
     Route::get('/relatorios', [ReportController::class, 'index'])->name('reports.index');
+
+    Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
+    Route::get('/backup/export', [BackupController::class, 'export'])->name('backup.export');
+    Route::post('/backup/restore', [BackupController::class, 'restore'])->name('backup.restore');
 });
 
 require __DIR__.'/auth.php';

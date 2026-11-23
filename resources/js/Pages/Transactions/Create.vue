@@ -6,11 +6,13 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed, watch } from 'vue';
 
 interface Category {
     id: number;
     name: string;
     color: string | null;
+    type: 'income' | 'expense';
 }
 
 interface Client {
@@ -49,6 +51,17 @@ const form = useForm({
     appointment_id: props.defaultData.appointment_id || '',
     notes: '',
 });
+
+const filteredCategories = computed(() =>
+    props.categories.filter((c) => c.type === form.type)
+);
+
+watch(
+    () => form.type,
+    () => {
+        form.category_id = '';
+    }
+);
 
 const submit = () => {
     form.post(route('transactions.store'));
@@ -173,7 +186,7 @@ const submit = () => {
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 >
                                     <option value="">Sem categoria</option>
-                                    <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+                                    <option v-for="cat in filteredCategories" :key="cat.id" :value="cat.id">
                                         {{ cat.name }}
                                     </option>
                                 </select>

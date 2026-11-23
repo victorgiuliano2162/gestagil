@@ -62,6 +62,11 @@ const formatCurrency = (cents: number) => {
     return (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 };
 
+const formatDateOnly = (iso: string) => {
+    const [y, m, d] = iso.slice(0, 10).split('-');
+    return `${d}/${m}/${y}`;
+};
+
 const deleteTransaction = (id: number) => {
     if (confirm('Tem certeza que deseja remover este lançamento financeiro?')) {
         router.delete(route('transactions.destroy', id));
@@ -187,7 +192,7 @@ const deleteTransaction = (id: number) => {
                                 </tr>
                                 <tr v-for="t in transactions.data" :key="t.id" class="hover:bg-gray-50">
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-600 font-medium">
-                                        {{ new Date(t.occurred_on + 'T12:00:00').toLocaleDateString('pt-BR') }}
+                                        {{ formatDateOnly(t.occurred_on) }}
                                     </td>
                                     <td class="px-4 py-3 font-semibold text-gray-900">
                                         {{ t.description }}
@@ -209,6 +214,12 @@ const deleteTransaction = (id: number) => {
                                         {{ t.type === 'income' ? '+' : '-' }} {{ formatCurrency(t.amount_cents) }}
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-right text-xs space-x-2">
+                                        <Link
+                                            :href="route('transactions.edit', t.id)"
+                                            class="text-indigo-600 hover:text-indigo-900 font-semibold"
+                                        >
+                                            Editar
+                                        </Link>
                                         <Link
                                             v-if="t.type === 'income'"
                                             :href="route('receipts.create', { transaction_id: t.id })"

@@ -34,13 +34,14 @@ class TransactionRequest extends FormRequest
     {
         return [
             'type' => ['required', 'in:income,expense'],
-            'amount' => ['required', 'numeric', 'min:0.01'],
-            'occurred_on' => ['required', 'date'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:9999999.99'],
+            'occurred_on' => ['required', 'date', 'before_or_equal:today'],
             'description' => ['required', 'string', 'max:255'],
             'category_id' => [
                 'nullable',
                 Rule::exists('transaction_categories', 'id')
-                    ->where('user_id', $this->user()->id),
+                    ->where('user_id', $this->user()->id)
+                    ->where('type', $this->input('type')),
             ],
             'payment_method' => ['required', 'in:pix,cash,card,other'],
             'client_id' => [
@@ -65,7 +66,9 @@ class TransactionRequest extends FormRequest
             'type.required' => 'Informe o tipo do lançamento (receita ou despesa).',
             'amount.required' => 'O valor do lançamento é obrigatório.',
             'amount.min' => 'O valor deve ser maior que zero.',
+            'amount.max' => 'O valor máximo permitido é R$ 9.999.999,99.',
             'occurred_on.required' => 'A data do lançamento é obrigatória.',
+            'occurred_on.before_or_equal' => 'A data do lançamento não pode ser futura.',
             'description.required' => 'Informe uma descrição para o lançamento.',
         ];
     }

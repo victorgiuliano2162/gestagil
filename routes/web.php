@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('appointments', AppointmentController::class);
     Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status');
 
-    Route::resource('transactions', TransactionController::class)->only(['index', 'create', 'store', 'destroy']);
+    Route::resource('transactions', TransactionController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
     Route::resource('receipts', ReceiptController::class)->only(['index', 'create', 'store', 'show']);
     Route::get('/receipts/{receipt}/pdf', [ReceiptController::class, 'pdf'])->name('receipts.pdf');

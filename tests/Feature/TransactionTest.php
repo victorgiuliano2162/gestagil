@@ -4,8 +4,10 @@ use App\Enums\AppointmentStatus;
 use App\Enums\PaymentMethod;
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Models\Receipt;
 use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 test('authenticated user can list cash flow transactions', function () {
     $user = User::factory()->withDefaultCategories()->create();
@@ -209,10 +211,10 @@ test('cannot delete transaction with active receipt until receipt is canceled', 
         'payment_method' => PaymentMethod::Pix,
     ]);
 
-    $receipt = \App\Models\Receipt::create([
+    $receipt = Receipt::create([
         'user_id' => $user->id,
         'transaction_id' => $trans->id,
-        'code' => \Illuminate\Support\Str::uuid()->toString(),
+        'code' => Str::uuid()->toString(),
         'year' => (int) now()->format('Y'),
         'number' => 1,
         'status' => 'issued',
@@ -242,4 +244,182 @@ test('cannot delete transaction with active receipt until receipt is canceled', 
         ->assertSessionHas('success');
 
     $this->assertSoftDeleted('transactions', ['id' => $trans->id]);
+});
+
+test('transaction enforces RN-02 max amount, RN-03 no future date, RN-05 no canceled appointment and RN-07 client consistency', function () {
+    $user = User::factory()->withDefaultCategories()->create();
+    $clientA = Client::create(['user_id' => $user->id, 'name' => 'Cliente Real']);
+    $clientB = Client::create(['user_id' => $user->id, 'name' => 'Outro Cliente']);
+
+    $canceledAppt = Appointment::create([
+        'user_id' => $user->id,
+        'client_id' => $clientA->id,
+        'service_description' => 'Atendimento Cancelado',
+        'service_at' => now(),
+        'status' => AppointmentStatus::Canceled,
+    ]);
+
+    $activeAppt = Appointment::create([
+        'user_id' => $user->id,
+        'client_id' => $clientA->id,
+        'service_description' => 'Atendimento Ativo',
+        'service_at' => now(),
+        'status' => AppointmentStatus::Completed,
+    ]);
+
+    // RN-02 + RN-03: valor acima do teto e data futura
+    $this->actingAs($user)->post(route('transactions.store'), [
+        'type' => 'income',
+        'amount' => '10000000.00',
+        'description' => 'Valor exorbitante',
+        'occurred_on' => now()->addDay()->format('Y-m-d'),
+        'payment_method' => 'pix',
+    ])->assertSessionHasErrors(['amount', 'occurred_on']);
+
+    // RN-05: vínculo com atendimento cancelado
+    $this->actingAs($user)->post(route('transactions.store'), [
+        'type' => 'income',
+        'amount' => '100.00',
+        'description' => 'Atendimento cancelado',
+        'occurred_on' => now()->format('Y-m-d'),
+        'payment_method' => 'pix',
+        'appointment_id' => $canceledAppt->id,
+    ])->assertSessionHasErrors(['appointment_id']);
+
+    // RN-07: enviar client_id diferente do atendimento deve gravar o client_id do atendimento
+    $this->actingAs($user)->post(route('transactions.store'), [
+        'type' => 'income',
+        'amount' => '150.00',
+        'description' => 'Recebimento consistente',
+        'occurred_on' => now()->format('Y-m-d'),
+        'payment_method' => 'pix',
+        'appointment_id' => $activeAppt->id,
+        'client_id' => $clientB->id,
+    ])->assertRedirect(route('transactions.index'));
+
+    $tx = Transaction::where('appointment_id', $activeAppt->id)->first();
+    expect($tx)->not->toBeNull()
+        ->and($tx->client_id)->toBe($clientA->id);
+});
+
+test('transaction rejects category of mismatched type and create page provides all categories', function () {
+    $user = User::factory()->withDefaultCategories()->create();
+    $incomeCategory = $user->categories()->where('type', 'income')->first();
+    $expenseCategory = $user->categories()->where('type', 'expense')->first();
+
+    $this->actingAs($user)
+        ->get(route('transactions.create', ['type' => 'income']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Transactions/Create')
+            ->has('categories', $user->categories()->count())
+        );
+
+    $this->actingAs($user)->post(route('transactions.store'), [
+        'type' => 'expense',
+        'amount' => '100,00',
+        'description' => 'Categoria invertida',
+        'occurred_on' => now()->format('Y-m-d'),
+        'payment_method' => 'pix',
+        'category_id' => $incomeCategory->id,
+    ])->assertSessionHasErrors(['category_id']);
+
+    $this->actingAs($user)->post(route('transactions.store'), [
+        'type' => 'expense',
+        'amount' => '100,00',
+        'description' => 'Categoria correta',
+        'occurred_on' => now()->format('Y-m-d'),
+        'payment_method' => 'pix',
+        'category_id' => $expenseCategory->id,
+    ])->assertRedirect(route('transactions.index'));
+});
+
+test('user can edit transaction without active receipt and RN-22 locks fields when receipt is active', function () {
+    $user = User::factory()->withDefaultCategories()->create();
+    $otherUser = User::factory()->withDefaultCategories()->create();
+    $incomeCategory = $user->categories()->where('type', 'income')->first();
+
+    $tx = Transaction::create([
+        'user_id' => $user->id,
+        'category_id' => $incomeCategory->id,
+        'type' => 'income',
+        'amount_cents' => 20000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Serviço Inicial',
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+
+    // Cross-tenant edit/update -> 404
+    $this->actingAs($otherUser)->get(route('transactions.edit', $tx))->assertNotFound();
+    $this->actingAs($otherUser)->put(route('transactions.update', $tx), [
+        'type' => 'income',
+        'amount' => '999.00',
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Hack',
+        'payment_method' => 'pix',
+    ])->assertNotFound();
+
+    // Edit without active receipt succeeds
+    $this->actingAs($user)->get(route('transactions.edit', $tx))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Transactions/Edit')
+            ->where('hasActiveReceipt', false)
+        );
+
+    $this->actingAs($user)->put(route('transactions.update', $tx), [
+        'type' => 'income',
+        'amount' => '250.00',
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Serviço Atualizado',
+        'payment_method' => 'cash',
+        'category_id' => $incomeCategory->id,
+        'notes' => 'Nota atualizada',
+    ])->assertRedirect(route('transactions.index'));
+
+    $tx->refresh();
+    expect($tx->amount_cents)->toBe(25000)
+        ->and($tx->description)->toBe('Serviço Atualizado')
+        ->and($tx->payment_method)->toBe(PaymentMethod::Cash);
+
+    // Issue active receipt -> locked fields cannot be changed (RN-22)
+    $receipt = Receipt::create([
+        'user_id' => $user->id,
+        'transaction_id' => $tx->id,
+        'code' => Str::uuid()->toString(),
+        'year' => (int) now()->format('Y'),
+        'number' => 1,
+        'status' => 'issued',
+        'issued_at' => now(),
+        'amount_cents' => 25000,
+        'payment_method' => 'cash',
+        'description' => 'Serviço Atualizado',
+        'payer_name' => 'Cliente',
+        'issuer_snapshot' => ['display_name' => 'Loja'],
+    ]);
+
+    $this->actingAs($user)->put(route('transactions.update', $tx), [
+        'type' => 'income',
+        'amount' => '300.00',
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Serviço Atualizado',
+        'payment_method' => 'cash',
+        'category_id' => $incomeCategory->id,
+    ])->assertSessionHas('error');
+
+    expect($tx->refresh()->amount_cents)->toBe(25000);
+
+    // Cancel receipt -> full edit is allowed again
+    $receipt->update(['status' => 'canceled', 'canceled_at' => now()]);
+
+    $this->actingAs($user)->put(route('transactions.update', $tx), [
+        'type' => 'income',
+        'amount' => '300.00',
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Serviço Pós Cancelamento',
+        'payment_method' => 'pix',
+        'category_id' => $incomeCategory->id,
+    ])->assertRedirect(route('transactions.index'));
+
+    expect($tx->refresh()->amount_cents)->toBe(30000);
 });

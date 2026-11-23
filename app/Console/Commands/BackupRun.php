@@ -32,6 +32,7 @@ class BackupRun extends Command
 
         if ($connection !== 'sqlite') {
             $this->error('Backup is only supported for SQLite databases.');
+
             return self::FAILURE;
         }
 
@@ -39,16 +40,17 @@ class BackupRun extends Command
 
         if ($dbPath !== ':memory:' && ! file_exists($dbPath)) {
             $this->error("Database file not found at: {$dbPath}");
+
             return self::FAILURE;
         }
 
-        $backupDir = $this->option('destination') ?: env('BACKUP_PATH', base_path('backups'));
+        $backupDir = $this->option('destination') ?: config('backup.path');
 
         if (! File::isDirectory($backupDir)) {
             File::makeDirectory($backupDir, 0755, true);
         }
 
-        $label = $this->option('label') ? preg_replace('/[^a-zA-Z0-9_-]/', '', $this->option('label')) . '-' : '';
+        $label = $this->option('label') ? preg_replace('/[^a-zA-Z0-9_-]/', '', $this->option('label')).'-' : '';
         $timestamp = now()->format('Ymd-His');
         $rawBackupPath = "{$backupDir}/gestagil-{$label}{$timestamp}.sqlite";
         $gzBackupPath = "{$rawBackupPath}.gz";
@@ -62,7 +64,8 @@ class BackupRun extends Command
             }
 
             // Run VACUUM INTO
-            DB::statement("VACUUM INTO '{$rawBackupPath}'");
+            $escapedPath = str_replace("'", "''", $rawBackupPath);
+            DB::statement("VACUUM INTO '{$escapedPath}'");
 
             // Integrity check on the backup copy
             $backupPdo = new \PDO("sqlite:{$rawBackupPath}");
@@ -85,7 +88,7 @@ class BackupRun extends Command
             Log::info("Backup created successfully: {$gzBackupPath}");
 
             // Prune old backups
-            $keepDays = (int) env('BACKUP_KEEP_DAYS', 14);
+            $keepDays = (int) config('backup.keep_days', 14);
             $this->pruneOldBackups($backupDir, $keepDays);
 
             return self::SUCCESS;
@@ -112,7 +115,7 @@ class BackupRun extends Command
         foreach ($files as $file) {
             if (filemtime($file) < $threshold) {
                 @unlink($file);
-                $this->line("Pruned old backup: " . basename($file));
+                $this->line('Pruned old backup: '.basename($file));
             }
         }
     }

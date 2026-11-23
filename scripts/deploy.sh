@@ -25,7 +25,7 @@ docker compose exec -T app php artisan optimize
 
 # 5. Smoke test health endpoint
 echo "==> Checking healthcheck (/up)..."
-curl -fsS http://localhost:8080/up || {
+curl -fsS http://localhost/up || {
     echo "WARNING: Healthcheck did not respond with 200!"
 }
 

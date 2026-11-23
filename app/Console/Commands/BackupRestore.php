@@ -15,12 +15,13 @@ class BackupRestore extends Command
     public function handle(): int
     {
         $backupArg = $this->argument('file');
-        $backupDir = env('BACKUP_PATH', base_path('backups'));
+        $backupDir = config('backup.path');
 
         $backupPath = File::exists($backupArg) ? $backupArg : "{$backupDir}/{$backupArg}";
 
         if (! File::exists($backupPath)) {
             $this->error("Backup file not found at: {$backupPath}");
+
             return self::FAILURE;
         }
 
@@ -28,6 +29,7 @@ class BackupRestore extends Command
 
         if (! $this->option('force') && ! $this->confirm("Are you sure you want to restore database from [{$backupPath}]? This will replace the active database!")) {
             $this->info('Restore aborted by user.');
+
             return self::SUCCESS;
         }
 
@@ -38,6 +40,7 @@ class BackupRestore extends Command
 
         if ($sqlData === false) {
             $this->error('Failed to decompress backup file. File might be corrupted.');
+
             return self::FAILURE;
         }
 
@@ -53,18 +56,20 @@ class BackupRestore extends Command
             if ($result !== 'ok') {
                 @unlink($tempPath);
                 $this->error("Integrity check failed on restored database: {$result}");
+
                 return self::FAILURE;
             }
             unset($pdo);
         } catch (\Throwable $e) {
             @unlink($tempPath);
             $this->error("Failed to connect to restored database: {$e->getMessage()}");
+
             return self::FAILURE;
         }
 
         // Archive current active DB if exists
         if (File::exists($dbPath)) {
-            $archivePath = "{$dbPath}.pre_restore_" . now()->format('Ymd_His');
+            $archivePath = "{$dbPath}.pre_restore_".now()->format('Ymd_His');
             File::move($dbPath, $archivePath);
             @unlink("{$dbPath}-wal");
             @unlink("{$dbPath}-shm");

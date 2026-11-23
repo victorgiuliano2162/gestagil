@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: docker/Dockerfile
     env_file: .env
+    environment:
+      - DB_DATABASE=/data/db/database.sqlite
     restart: unless-stopped
     ports:
       - "8080:8080"

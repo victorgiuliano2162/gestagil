@@ -9,7 +9,6 @@ use App\Mail\ReceiptMail;
 use App\Models\Receipt;
 use App\Models\Transaction;
 use App\Services\ReceiptPdfService;
-use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
@@ -76,6 +75,11 @@ class ReceiptController extends Controller
 
         $businessProfile = $user->businessProfile()->first();
 
+        if (! $businessProfile || empty($businessProfile->display_name) || empty($businessProfile->document_number)) {
+            return redirect()->route('business-profile.edit')
+                ->with('error', 'Complete seu Perfil Comercial (Nome/Razão Social e CPF/CNPJ) antes de emitir recibos.');
+        }
+
         return Inertia::render('Receipts/Create', [
             'transaction' => $transaction,
             'client' => $transaction->client,
@@ -96,38 +100,47 @@ class ReceiptController extends Controller
             return back()->with('error', 'Recibos só podem ser gerados a partir de receitas.');
         }
 
-        $activeReceipt = Receipt::where('transaction_id', $transaction->id)
-            ->where('status', 'issued')
-            ->first();
-
-        if ($activeReceipt) {
-            return redirect()->route('receipts.show', $activeReceipt->id)
-                ->with('error', 'Já existe um recibo emitido ativo para esta receita.');
+        $profile = $user->businessProfile()->first();
+        if (! $profile || empty($profile->display_name) || empty($profile->document_number)) {
+            return redirect()->route('business-profile.edit')
+                ->with('error', 'Complete seu Perfil Comercial (Nome/Razão Social e CPF/CNPJ) antes de emitir recibos.');
         }
 
-        $profile = $user->businessProfile()->first();
-        $storeName = $profile?->store_name ?: $profile?->display_name ?: $user->name;
+        $storeName = $profile->store_name ?: $profile->display_name ?: $user->name;
 
         $fullAddress = null;
-        if ($profile?->street) {
+        if ($profile->street) {
             $fullAddress = "{$profile->street}, {$profile->number}";
-            if ($profile->neighborhood) $fullAddress .= " - {$profile->neighborhood}";
-            if ($profile->city && $profile->state) $fullAddress .= " ({$profile->city}/{$profile->state})";
+            if ($profile->neighborhood) {
+                $fullAddress .= " - {$profile->neighborhood}";
+            }
+            if ($profile->city && $profile->state) {
+                $fullAddress .= " ({$profile->city}/{$profile->state})";
+            }
         }
 
         $issuerSnapshot = [
             'store_name' => $storeName,
-            'display_name' => $profile?->display_name ?: $user->name,
-            'document_type' => $profile?->document_type ?: 'cpf',
-            'document_number' => $profile?->document_number ?: '',
-            'phone' => $profile?->phone ?: '',
+            'display_name' => $profile->display_name ?: $user->name,
+            'document_type' => $profile->document_type ?: 'cpf',
+            'document_number' => $profile->document_number ?: '',
+            'phone' => $profile->phone ?: '',
             'full_address' => $fullAddress,
-            'logo_path' => $profile?->logo_path,
+            'logo_path' => $profile->logo_path,
         ];
 
         $year = (int) now()->format('Y');
 
-        $receipt = DB::transaction(function () use ($user, $transaction, $data, $issuerSnapshot, $year) {
+        $result = DB::transaction(function () use ($user, $transaction, $data, $issuerSnapshot, $year) {
+            $activeReceipt = Receipt::where('transaction_id', $transaction->id)
+                ->where('status', 'issued')
+                ->lockForUpdate()
+                ->first();
+
+            if ($activeReceipt) {
+                return ['receipt' => $activeReceipt, 'already_existed' => true];
+            }
+
             // Sequencial atômico por ano e usuário
             $maxSeq = Receipt::where('user_id', $user->id)
                 ->where('year', $year)
@@ -136,7 +149,7 @@ class ReceiptController extends Controller
 
             $nextNumber = $maxSeq + 1;
 
-            return Receipt::create([
+            $receipt = Receipt::create([
                 'user_id' => $user->id,
                 'transaction_id' => $transaction->id,
                 'client_id' => $transaction->client_id,
@@ -152,7 +165,16 @@ class ReceiptController extends Controller
                 'payer_document' => $data['payer_document'] ?? null,
                 'issuer_snapshot' => $issuerSnapshot,
             ]);
+
+            return ['receipt' => $receipt, 'already_existed' => false];
         });
+
+        if ($result['already_existed']) {
+            return redirect()->route('receipts.show', $result['receipt']->id)
+                ->with('error', 'Já existe um recibo emitido ativo para esta receita.');
+        }
+
+        $receipt = $result['receipt'];
 
         return redirect()->route('receipts.show', $receipt->id)
             ->with('success', "Recibo Nº {$receipt->formatted_number} emitido com sucesso!");
@@ -164,14 +186,14 @@ class ReceiptController extends Controller
 
         return Inertia::render('Receipts/Show', [
             'receipt' => $receipt,
-            'publicUrl' => url('/r/' . $receipt->code),
+            'publicUrl' => url('/r/'.$receipt->code),
         ]);
     }
 
     public function pdf(Receipt $receipt, ReceiptPdfService $pdfService, Request $request): HttpResponse
     {
         $pdf = $pdfService->render($receipt);
-        $filename = 'recibo-' . str_replace('/', '-', $receipt->formatted_number) . '.pdf';
+        $filename = 'recibo-'.str_replace('/', '-', $receipt->formatted_number).'.pdf';
 
         if ($request->input('disposition') === 'attachment') {
             return $pdf->download($filename);

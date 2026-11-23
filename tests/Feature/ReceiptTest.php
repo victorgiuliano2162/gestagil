@@ -7,7 +7,10 @@ use App\Models\Client;
 use App\Models\Receipt;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Services\ReceiptPdfService;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 test('authenticated user can issue a receipt from an income transaction', function () {
     $user = User::factory()->withDefaultCategories()->create();
@@ -60,7 +63,7 @@ test('authenticated user can issue a receipt from an income transaction', functi
 });
 
 test('sequential numbering increments atomically per year and user', function () {
-    $user = User::factory()->withDefaultCategories()->create();
+    $user = User::factory()->withBusinessProfile()->withDefaultCategories()->create();
     $year = (int) now()->format('Y');
 
     $trans1 = Transaction::create([
@@ -103,7 +106,7 @@ test('sequential numbering increments atomically per year and user', function ()
 });
 
 test('cannot issue duplicate active receipt for same transaction', function () {
-    $user = User::factory()->withDefaultCategories()->create();
+    $user = User::factory()->withBusinessProfile()->withDefaultCategories()->create();
 
     $trans = Transaction::create([
         'user_id' => $user->id,
@@ -156,8 +159,8 @@ test('cannot issue receipt for expense transaction', function () {
 });
 
 test('receipts enforce multi-tenant isolation', function () {
-    $userA = User::factory()->withDefaultCategories()->create();
-    $userB = User::factory()->withDefaultCategories()->create();
+    $userA = User::factory()->withBusinessProfile()->withDefaultCategories()->create();
+    $userB = User::factory()->withBusinessProfile()->withDefaultCategories()->create();
 
     $transA = Transaction::create([
         'user_id' => $userA->id,
@@ -191,7 +194,7 @@ test('receipts enforce multi-tenant isolation', function () {
 });
 
 test('user can cancel receipt with a reason', function () {
-    $user = User::factory()->withDefaultCategories()->create();
+    $user = User::factory()->withBusinessProfile()->withDefaultCategories()->create();
 
     $trans = Transaction::create([
         'user_id' => $user->id,
@@ -224,7 +227,7 @@ test('user can cancel receipt with a reason', function () {
 });
 
 test('receipt can be downloaded and rendered as PDF', function () {
-    $user = User::factory()->withDefaultCategories()->create();
+    $user = User::factory()->withBusinessProfile()->withDefaultCategories()->create();
 
     $trans = Transaction::create([
         'user_id' => $user->id,
@@ -250,7 +253,7 @@ test('receipt can be downloaded and rendered as PDF', function () {
 });
 
 test('public receipt verification and download without login', function () {
-    $user = User::factory()->withDefaultCategories()->create();
+    $user = User::factory()->withBusinessProfile()->withDefaultCategories()->create();
 
     $trans = Transaction::create([
         'user_id' => $user->id,
@@ -288,7 +291,7 @@ test('public receipt verification and download without login', function () {
 test('receipt can be delivered via email with PDF attached', function () {
     Mail::fake();
 
-    $user = User::factory()->withDefaultCategories()->create();
+    $user = User::factory()->withBusinessProfile()->withDefaultCategories()->create();
 
     $trans = Transaction::create([
         'user_id' => $user->id,
@@ -346,11 +349,11 @@ test('cannot issue receipt for transaction belonging to another user', function 
 });
 
 test('receipt pdf service embeds logo from local disk and handles missing logo gracefully', function () {
-    \Illuminate\Support\Facades\Storage::fake('local');
+    Storage::fake('local');
 
     $user = User::factory()->create();
     $logoPath = 'logos/test-logo.png';
-    \Illuminate\Support\Facades\Storage::disk('local')->put($logoPath, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='));
+    Storage::disk('local')->put($logoPath, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='));
 
     $tx = Transaction::create([
         'user_id' => $user->id,
@@ -364,7 +367,7 @@ test('receipt pdf service embeds logo from local disk and handles missing logo g
     $receipt = Receipt::create([
         'user_id' => $user->id,
         'transaction_id' => $tx->id,
-        'code' => \Illuminate\Support\Str::uuid()->toString(),
+        'code' => Str::uuid()->toString(),
         'year' => (int) now()->format('Y'),
         'number' => 1,
         'status' => 'issued',
@@ -379,7 +382,7 @@ test('receipt pdf service embeds logo from local disk and handles missing logo g
         ],
     ]);
 
-    $service = app(\App\Services\ReceiptPdfService::class);
+    $service = app(ReceiptPdfService::class);
     $pdf = $service->render($receipt);
     expect($pdf->output())->not->toBeEmpty();
 
@@ -387,4 +390,34 @@ test('receipt pdf service embeds logo from local disk and handles missing logo g
     $receipt->update(['issuer_snapshot' => ['display_name' => 'Empresa Teste', 'logo_path' => 'logos/non-existent.png']]);
     $pdfMissing = $service->render($receipt->fresh());
     expect($pdfMissing->output())->not->toBeEmpty();
+});
+
+test('cannot issue receipt without business profile document_number (RN-18)', function () {
+    $user = User::factory()->withDefaultCategories()->create();
+
+    $trans = Transaction::create([
+        'user_id' => $user->id,
+        'type' => 'income',
+        'amount_cents' => 15000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Serviço sem perfil',
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('receipts.create', ['transaction_id' => $trans->id]))
+        ->assertRedirect(route('business-profile.edit'))
+        ->assertSessionHas('error');
+
+    $this->actingAs($user)
+        ->post(route('receipts.store'), [
+            'transaction_id' => $trans->id,
+            'payer_name' => 'Cliente Teste',
+            'description' => 'Serviço sem perfil',
+            'payment_method' => 'pix',
+        ])
+        ->assertRedirect(route('business-profile.edit'))
+        ->assertSessionHas('error');
+
+    expect(Receipt::where('transaction_id', $trans->id)->count())->toBe(0);
 });

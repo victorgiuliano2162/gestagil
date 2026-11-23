@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
+import { maskCpfCnpj, maskPhone } from '@/utils/masks';
 
 interface ClientItem {
     id: number;
@@ -102,10 +103,10 @@ watch(search, (value) => {
                                         </Link>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                        {{ c.phone_e164 || '-' }}
+                                        {{ c.phone_e164 ? maskPhone(c.phone_e164) : '-' }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                        {{ c.document_number || '-' }}
+                                        {{ c.document_number ? maskCpfCnpj(c.document_number) : '-' }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                         {{ c.email || '-' }}

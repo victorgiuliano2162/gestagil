@@ -5,6 +5,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { maskCpfCnpj } from '@/utils/masks';
 
 interface Client {
     id: number;
@@ -37,7 +38,7 @@ const props = defineProps<{
 const form = useForm({
     transaction_id: props.transaction.id,
     payer_name: props.client?.name || '',
-    payer_document: props.client?.document_number || '',
+    payer_document: props.client?.document_number ? maskCpfCnpj(props.client.document_number) : '',
     description: props.transaction.description || 'Prestação de serviços / venda comercial',
     payment_method: props.transaction.payment_method || 'pix',
 });
@@ -119,8 +120,10 @@ const formatCurrency = (cents: number): string => {
                             <InputLabel for="payer_document" value="CPF ou CNPJ do Cliente (Opcional)" />
                             <TextInput
                                 id="payer_document"
-                                v-model="form.payer_document"
+                                :model-value="form.payer_document"
+                                @input="form.payer_document = maskCpfCnpj(($event.target as HTMLInputElement).value)"
                                 type="text"
+                                maxlength="18"
                                 class="mt-1 block w-full"
                                 placeholder="000.000.000-00"
                             />

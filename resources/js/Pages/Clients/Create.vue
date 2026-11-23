@@ -6,6 +6,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { maskCpfCnpj, maskPhone } from '@/utils/masks';
 
 const form = useForm({
     name: '',
@@ -64,9 +65,11 @@ const submit = () => {
                                 <TextInput
                                     id="phone_e164"
                                     type="text"
+                                    maxlength="15"
                                     class="mt-1 block w-full"
-                                    v-model="form.phone_e164"
-                                    placeholder="Ex: 81999998888"
+                                    :model-value="form.phone_e164"
+                                    @input="form.phone_e164 = maskPhone(($event.target as HTMLInputElement).value)"
+                                    placeholder="(81) 99999-8888"
                                 />
                                 <InputError class="mt-2" :message="form.errors.phone_e164" />
                             </div>
@@ -91,6 +94,7 @@ const submit = () => {
                                 <select
                                     id="document_type"
                                     v-model="form.document_type"
+                                    @change="form.document_number = maskCpfCnpj(form.document_number, form.document_type)"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 >
                                     <option value="cpf">CPF</option>
@@ -104,9 +108,11 @@ const submit = () => {
                                 <TextInput
                                     id="document_number"
                                     type="text"
+                                    :maxlength="form.document_type === 'cpf' ? 14 : 18"
                                     class="mt-1 block w-full"
-                                    v-model="form.document_number"
-                                    placeholder="Apenas números ou formatado"
+                                    :model-value="form.document_number"
+                                    @input="form.document_number = maskCpfCnpj(($event.target as HTMLInputElement).value, form.document_type)"
+                                    :placeholder="form.document_type === 'cpf' ? '000.000.000-00' : '00.000.000/0000-00'"
                                 />
                                 <InputError class="mt-2" :message="form.errors.document_number" />
                             </div>

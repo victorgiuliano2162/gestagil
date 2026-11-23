@@ -5,6 +5,7 @@ import Modal from '@/Components/Modal.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { maskCpfCnpj, maskPhone } from '@/utils/masks';
 
 interface Client {
     id: number;
@@ -131,7 +132,7 @@ const deleteClient = () => {
                                     target="_blank"
                                     class="text-indigo-600 hover:text-indigo-900 underline inline-flex items-center"
                                 >
-                                    {{ client.phone_e164 }}
+                                    {{ maskPhone(client.phone_e164) }}
                                 </a>
                                 <span v-else class="text-gray-400">Não informado</span>
                             </dd>
@@ -141,7 +142,7 @@ const deleteClient = () => {
                             <dt class="text-sm font-medium text-gray-500">Documento</dt>
                             <dd class="mt-1 text-base text-gray-900">
                                 <span v-if="client.document_number">
-                                    {{ client.document_type?.toUpperCase() }}: {{ client.document_number }}
+                                    {{ client.document_type?.toUpperCase() }}: {{ maskCpfCnpj(client.document_number, client.document_type) }}
                                 </span>
                                 <span v-else class="text-gray-400">Não informado</span>
                             </dd>

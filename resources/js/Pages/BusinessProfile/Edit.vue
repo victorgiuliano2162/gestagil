@@ -33,6 +33,7 @@ const props = defineProps<{
 
 import { ref } from 'vue';
 import { optimizeImage } from '@/Utils/imageCompressor';
+import { maskCpfCnpj, maskPhone } from '@/utils/masks';
 
 const logoPreview = ref<string | null>(props.profile.logo_url || null);
 const isOptimizingLogo = ref(false);
@@ -44,8 +45,8 @@ const form = useForm({
     display_name: props.profile.display_name || '',
     activity_description: props.profile.activity_description || '',
     document_type: props.profile.document_type || 'cnpj',
-    document_number: props.profile.document_number || '',
-    phone: props.profile.phone || '',
+    document_number: props.profile.document_number ? maskCpfCnpj(props.profile.document_number, props.profile.document_type || 'cnpj') : '',
+    phone: props.profile.phone ? maskPhone(props.profile.phone) : '',
     postal_code: props.profile.postal_code || '',
     street: props.profile.street || '',
     number: props.profile.number || '',
@@ -220,6 +221,7 @@ const submit = () => {
                                 <select
                                     id="document_type"
                                     v-model="form.document_type"
+                                    @change="form.document_number = maskCpfCnpj(form.document_number, form.document_type)"
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 >
                                     <option value="cnpj">CNPJ</option>
@@ -233,9 +235,11 @@ const submit = () => {
                                 <TextInput
                                     id="document_number"
                                     type="text"
+                                    :maxlength="form.document_type === 'cpf' ? 14 : 18"
                                     class="mt-1 block w-full"
-                                    v-model="form.document_number"
-                                    placeholder="Ex: 00.000.000/0001-00"
+                                    :model-value="form.document_number"
+                                    @input="form.document_number = maskCpfCnpj(($event.target as HTMLInputElement).value, form.document_type)"
+                                    :placeholder="form.document_type === 'cpf' ? '000.000.000-00' : '00.000.000/0001-00'"
                                 />
                                 <InputError class="mt-2" :message="form.errors.document_number" />
                             </div>
@@ -245,9 +249,11 @@ const submit = () => {
                                 <TextInput
                                     id="phone"
                                     type="text"
+                                    maxlength="15"
                                     class="mt-1 block w-full"
-                                    v-model="form.phone"
-                                    placeholder="Ex: (81) 99999-8888"
+                                    :model-value="form.phone"
+                                    @input="form.phone = maskPhone(($event.target as HTMLInputElement).value)"
+                                    placeholder="(81) 99999-8888"
                                 />
                                 <InputError class="mt-2" :message="form.errors.phone" />
                             </div>

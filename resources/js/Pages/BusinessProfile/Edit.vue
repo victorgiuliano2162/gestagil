@@ -270,6 +270,14 @@ const submit = () => {
                                     <TextInput id="number" v-model="form.number" type="text" class="mt-1 block w-full" />
                                 </div>
                                 <div>
+                                    <InputLabel for="complement" value="Complemento" />
+                                    <TextInput id="complement" v-model="form.complement" type="text" class="mt-1 block w-full" placeholder="Sala, Galpão, Bloco..." />
+                                </div>
+                                <div>
+                                    <InputLabel for="neighborhood" value="Bairro" />
+                                    <TextInput id="neighborhood" v-model="form.neighborhood" type="text" class="mt-1 block w-full" />
+                                </div>
+                                <div>
                                     <InputLabel for="city" value="Cidade" />
                                     <TextInput id="city" v-model="form.city" type="text" class="mt-1 block w-full" />
                                 </div>

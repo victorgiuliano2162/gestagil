@@ -8,6 +8,7 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { formatPaymentMethod } from '@/utils/paymentMethod';
 
 interface Client {
     id: number;
@@ -284,8 +285,8 @@ const formatDate = (dateStr: string): string => {
                     <!-- Forma de Pagamento -->
                     <div class="border-t border-gray-100 pt-4 flex justify-between items-center text-sm">
                         <span class="text-gray-500">Forma de Pagamento:</span>
-                        <span class="font-bold text-gray-900 uppercase bg-gray-100 px-3 py-1 rounded">
-                            {{ receipt.payment_method }}
+                        <span class="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded">
+                            {{ formatPaymentMethod(receipt.payment_method) }}
                         </span>
                     </div>
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import { formatPaymentMethod } from '@/utils/paymentMethod';
 
 interface IssuerSnapshot {
     store_name?: string;
@@ -128,7 +129,7 @@ const formatDate = (dateStr: string): string => {
                             CPF/CNPJ: {{ receipt.payer_document }}
                         </div>
                         <div class="text-gray-500 mt-0.5">
-                            Forma: <strong class="uppercase text-gray-700">{{ receipt.payment_method }}</strong>
+                            Forma: <strong class="text-gray-700">{{ formatPaymentMethod(receipt.payment_method) }}</strong>
                         </div>
                     </div>
                 </div>

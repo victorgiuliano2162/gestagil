@@ -288,14 +288,15 @@
             <table class="details-table">
                 <tr>
                     <td class="details-label">Forma de Pagamento:</td>
-                    <td><strong>{{ strtoupper($receipt->payment_method) }}</strong></td>
+                    <td><strong>{{ \App\Enums\PaymentMethod::tryFrom($receipt->payment_method)?->label() ?? strtoupper($receipt->payment_method) }}</strong></td>
                 </tr>
             </table>
         </div>
 
         <div class="footer">
             <p>
-                Este documento comprova o recebimento do valor especificado acima para os devidos fins de direito.<br>
+                <strong>Documento sem valor fiscal — não substitui Nota Fiscal.</strong><br>
+                Este recibo comprova o recebimento do valor especificado acima para os devidos fins de direito.<br>
                 Chave de Autenticidade Digital: <span class="auth-code">{{ $receipt->code }}</span><br>
                 Consulte a autenticidade online em: <strong>{{ url('/r/' . $receipt->code) }}</strong>
             </p>

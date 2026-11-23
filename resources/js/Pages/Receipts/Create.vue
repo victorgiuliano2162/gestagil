@@ -42,6 +42,11 @@ const form = useForm({
     payment_method: props.transaction.payment_method || 'pix',
 });
 
+const formatDateOnly = (iso: string) => {
+    const [y, m, d] = iso.slice(0, 10).split('-');
+    return `${d}/${m}/${y}`;
+};
+
 const submit = () => {
     form.post(route('receipts.store'));
 };
@@ -89,7 +94,7 @@ const formatCurrency = (cents: number): string => {
                             </div>
                         </div>
                         <div class="text-right text-xs text-emerald-800">
-                            <span>Data da Entrada: <strong>{{ transaction.occurred_on }}</strong></span>
+                            <span>Data da Entrada: <strong>{{ formatDateOnly(transaction.occurred_on) }}</strong></span>
                         </div>
                     </div>
 

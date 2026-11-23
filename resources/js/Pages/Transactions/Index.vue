@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { formatPaymentMethod } from '@/utils/paymentMethod';
 
 interface Category {
     id: number;
@@ -262,8 +263,8 @@ const deleteTransaction = (id: number) => {
                                     <td class="whitespace-nowrap px-4 py-3 text-gray-600">
                                         {{ t.client?.name || '-' }}
                                     </td>
-                                    <td class="whitespace-nowrap px-4 py-3 text-xs uppercase font-bold text-gray-500">
-                                        {{ t.payment_method }}
+                                    <td class="whitespace-nowrap px-4 py-3 text-xs font-bold text-gray-500">
+                                        {{ formatPaymentMethod(t.payment_method) }}
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-right font-bold"
                                         :class="t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">

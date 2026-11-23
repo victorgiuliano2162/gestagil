@@ -294,6 +294,11 @@
         </div>
 
         <div class="footer">
+            @if(!empty($receipt->issuer_snapshot['receipt_footer']))
+                <p style="margin-bottom: 8px; font-style: italic; color: #374151;">
+                    {{ $receipt->issuer_snapshot['receipt_footer'] }}
+                </p>
+            @endif
             <p>
                 <strong>Documento sem valor fiscal — não substitui Nota Fiscal.</strong><br>
                 Este recibo comprova o recebimento do valor especificado acima para os devidos fins de direito.<br>

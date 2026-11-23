@@ -24,6 +24,7 @@ interface IssuerSnapshot {
     document_number?: string;
     phone?: string;
     full_address?: string | null;
+    receipt_footer?: string | null;
 }
 
 interface Receipt {
@@ -292,6 +293,9 @@ const formatDate = (dateStr: string): string => {
 
                     <!-- Rodapé de Autenticação -->
                     <div class="border-t border-gray-200 pt-6 text-center text-xs text-gray-400 space-y-1">
+                        <p v-if="receipt.issuer_snapshot?.receipt_footer" class="text-sm italic text-gray-600 mb-2">
+                            {{ receipt.issuer_snapshot.receipt_footer }}
+                        </p>
                         <p>Documento digital emitido através da plataforma GestÁgil.</p>
                         <p>Código de Autenticidade: <span class="font-mono font-bold text-indigo-600">{{ receipt.code }}</span></p>
                     </div>

@@ -421,3 +421,30 @@ test('cannot issue receipt without business profile document_number (RN-18)', fu
 
     expect(Receipt::where('transaction_id', $trans->id)->count())->toBe(0);
 });
+
+test('custom receipt footer from business profile is saved in snapshot and rendered in pdf', function () {
+    $user = User::factory()->withBusinessProfile([
+        'receipt_footer' => 'Obrigado pela preferência! Garantia de 90 dias.',
+    ])->create();
+
+    $trans = Transaction::create([
+        'user_id' => $user->id,
+        'type' => 'income',
+        'amount_cents' => 15000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Serviço com rodapé',
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+
+    $this->actingAs($user)->post(route('receipts.store'), [
+        'transaction_id' => $trans->id,
+        'payer_name' => 'Cliente Teste',
+        'description' => 'Serviço com rodapé',
+        'payment_method' => 'pix',
+    ])->assertRedirect();
+
+    $receipt = Receipt::where('transaction_id', $trans->id)->first();
+    expect($receipt->issuer_snapshot['receipt_footer'])->toBe('Obrigado pela preferência! Garantia de 90 dias.');
+
+    $this->actingAs($user)->get(route('receipts.pdf', $receipt))->assertOk();
+});

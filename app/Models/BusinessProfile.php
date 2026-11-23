@@ -26,6 +26,7 @@ class BusinessProfile extends Model
         'city',
         'state',
         'logo_path',
+        'receipt_footer',
     ];
 
     public function user(): BelongsTo

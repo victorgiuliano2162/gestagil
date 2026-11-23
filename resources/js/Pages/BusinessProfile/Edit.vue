@@ -23,6 +23,7 @@ interface BusinessProfile {
     state: string | null;
     logo_path: string | null;
     logo_url: string | null;
+    receipt_footer: string | null;
 }
 
 const props = defineProps<{
@@ -53,6 +54,7 @@ const form = useForm({
     city: props.profile.city || '',
     state: props.profile.state || '',
     logo: null as File | null,
+    receipt_footer: props.profile.receipt_footer || '',
 });
 
 const onLogoSelected = async (event: Event) => {
@@ -287,6 +289,20 @@ const submit = () => {
                                     <InputError class="mt-2" :message="form.errors.state" />
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Rodapé Customizado do Recibo (RF-NEG-02) -->
+                        <div class="border-t pt-4">
+                            <InputLabel for="receipt_footer" value="Rodapé / Mensagem de Agradecimento nos Recibos" />
+                            <textarea
+                                id="receipt_footer"
+                                v-model="form.receipt_footer"
+                                rows="2"
+                                maxlength="500"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                placeholder="Ex: Obrigado pela preferência! Garantia de 90 dias nos serviços."
+                            ></textarea>
+                            <InputError class="mt-2" :message="form.errors.receipt_footer" />
                         </div>
 
                         <!-- Botão de Salvar e Feedback -->

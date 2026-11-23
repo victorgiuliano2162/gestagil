@@ -28,6 +28,7 @@ class BusinessProfileUpdateRequest extends FormRequest
             'city' => ['nullable', 'string', 'max:80'],
             'state' => ['nullable', 'string', 'size:2'],
             'logo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
+            'receipt_footer' => ['nullable', 'string', 'max:500'],
         ];
     }
 

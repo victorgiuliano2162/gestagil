@@ -128,6 +128,7 @@ class ReceiptController extends Controller
             'phone' => $profile->phone ?: '',
             'full_address' => $fullAddress,
             'logo_path' => $profile->logo_path,
+            'receipt_footer' => $profile->receipt_footer,
         ];
 
         $year = (int) now()->format('Y');

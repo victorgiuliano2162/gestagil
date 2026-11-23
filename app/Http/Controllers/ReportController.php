@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
 use App\Models\Client;
 use App\Models\Transaction;
@@ -129,8 +130,28 @@ class ReportController extends Controller
             ->limit(10)
             ->get();
 
+        // Clientes recorrentes conforme RN-12 (>= 2 atendimentos concluídos no período)
+        $recurrentClients = Client::where('clients.user_id', $userId)
+            ->join('appointments', 'clients.id', '=', 'appointments.client_id')
+            ->whereNull('appointments.deleted_at')
+            ->where('appointments.status', AppointmentStatus::Completed->value)
+            ->whereDate('appointments.service_at', '>=', $startDate)
+            ->whereDate('appointments.service_at', '<=', $endDate)
+            ->select(
+                'clients.id',
+                'clients.name',
+                'clients.phone_e164',
+                DB::raw('COUNT(appointments.id) as completed_appointments_count')
+            )
+            ->groupBy('clients.id', 'clients.name', 'clients.phone_e164')
+            ->havingRaw('COUNT(appointments.id) >= 2')
+            ->orderByDesc('completed_appointments_count')
+            ->limit(10)
+            ->get();
+
         return [
             'top_clients' => $topClients,
+            'recurrent_clients' => $recurrentClients,
         ];
     }
 

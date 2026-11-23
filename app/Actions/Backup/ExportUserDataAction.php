@@ -145,6 +145,7 @@ class ExportUserDataAction
                     'neighborhood' => $profile->neighborhood,
                     'city' => $profile->city,
                     'state' => $profile->state,
+                    'receipt_footer' => $profile->receipt_footer,
                 ] : null,
                 'categories' => $categories,
                 'clients' => $clientsData,

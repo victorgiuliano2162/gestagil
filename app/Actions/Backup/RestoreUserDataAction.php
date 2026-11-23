@@ -64,6 +64,7 @@ class RestoreUserDataAction
                     'neighborhood',
                     'city',
                     'state',
+                    'receipt_footer',
                 ]);
 
                 if (! empty($profileAttributes)) {

@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Appointment;
+use App\Models\BusinessProfile;
 use App\Models\Client;
+use App\Models\Receipt;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -192,7 +194,7 @@ test('restoring backup in replace mode fails without double check confirmation',
         'confirmed_overwrite' => false,
     ]);
 
-    $response->assertSessionHasErrors(['confirmed_overwrite']);
+    $response->assertSessionHasErrors(['confirmed_overwrite', 'confirm_text']);
 });
 
 test('restoring backup in replace mode replaces user data cleanly when double check is confirmed', function () {
@@ -234,6 +236,7 @@ test('restoring backup in replace mode replaces user data cleanly when double ch
         'backup_file' => $file,
         'mode' => 'replace',
         'confirmed_overwrite' => true,
+        'confirm_text' => 'SOBRESCREVER',
     ]);
 
     $response->assertRedirect(route('backup.index'));
@@ -274,6 +277,7 @@ test('restore in replace mode does not touch data of other users (tenant isolati
         'backup_file' => $file,
         'mode' => 'replace',
         'confirmed_overwrite' => true,
+        'confirm_text' => 'SOBRESCREVER',
     ]);
 
     // Other user's client must remain completely intact
@@ -297,7 +301,7 @@ test('restoring backup cannot hijack or overwrite another user receipt by code',
     ]);
 
     $stolenCode = (string) Str::uuid();
-    $receiptA = \App\Models\Receipt::create([
+    $receiptA = Receipt::create([
         'user_id' => $userA->id,
         'transaction_id' => $txA->id,
         'client_id' => $clientA->id,
@@ -363,6 +367,7 @@ test('restoring backup cannot hijack or overwrite another user receipt by code',
             'backup_file' => $file,
             'mode' => $mode,
             'confirmed_overwrite' => $mode === 'replace',
+            'confirm_text' => $mode === 'replace' ? 'SOBRESCREVER' : '',
         ])->assertRedirect(route('backup.index'));
 
         $receiptA->refresh();
@@ -370,7 +375,7 @@ test('restoring backup cannot hijack or overwrite another user receipt by code',
             ->and($receiptA->payer_name)->toBe('Pagador Original A')
             ->and($receiptA->amount_cents)->toBe(50000);
 
-        $importedB = \App\Models\Receipt::withoutGlobalScopes()
+        $importedB = Receipt::withoutGlobalScopes()
             ->where('user_id', $userB->id)
             ->first();
         expect($importedB)->not->toBeNull()
@@ -380,7 +385,7 @@ test('restoring backup cannot hijack or overwrite another user receipt by code',
 
 test('export and replace restore preserve complete business profile and handle soft-deleted records', function () {
     $user = User::factory()->create();
-    \App\Models\BusinessProfile::create([
+    BusinessProfile::create([
         'user_id' => $user->id,
         'display_name' => 'Oficina Modelo',
         'store_name' => 'Auto Center Modelo',
@@ -430,6 +435,7 @@ test('export and replace restore preserve complete business profile and handle s
         'backup_file' => $file,
         'mode' => 'replace',
         'confirmed_overwrite' => true,
+        'confirm_text' => 'SOBRESCREVER',
     ])->assertRedirect(route('backup.index'))
         ->assertSessionHas('success');
 
@@ -437,7 +443,7 @@ test('export and replace restore preserve complete business profile and handle s
     expect($restoredClient)->not->toBeNull()
         ->and($restoredClient->name)->toBe('Cliente Soft Deleted');
 
-    $restoredProfile = \App\Models\BusinessProfile::where('user_id', $user->id)->first();
+    $restoredProfile = BusinessProfile::where('user_id', $user->id)->first();
     expect($restoredProfile->street)->toBe('Rua das Flores')
         ->and($restoredProfile->neighborhood)->toBe('Centro')
         ->and($restoredProfile->complement)->toBe('Galpão B')

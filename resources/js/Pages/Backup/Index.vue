@@ -26,6 +26,7 @@ const form = useForm({
     backup_file: null as File | null,
     mode: 'merge' as 'merge' | 'replace',
     confirmed_overwrite: false,
+    confirm_text: '',
 });
 
 const isModalOpen = ref(false);
@@ -39,7 +40,7 @@ const onFileChange = (e: Event) => {
 };
 
 const submitRestore = () => {
-    if (form.mode === 'replace' && !form.confirmed_overwrite) {
+    if (form.mode === 'replace' && (!form.confirmed_overwrite || form.confirm_text.trim().toUpperCase() !== 'SOBRESCREVER')) {
         isModalOpen.value = true;
         return;
     }
@@ -244,7 +245,7 @@ const confirmReplaceAndSubmit = () => {
                     <strong>Cópia de Segurança Automática:</strong> Antes de efetuar a substituição, o sistema salvará um instantâneo de segurança preventivo na pasta de backups do sistema.
                 </p>
 
-                <div class="mb-6">
+                <div class="mb-4">
                     <label class="flex items-center cursor-pointer">
                         <Checkbox v-model:checked="form.confirmed_overwrite" />
                         <span class="ml-2 text-sm font-medium text-gray-800">
@@ -254,13 +255,26 @@ const confirmReplaceAndSubmit = () => {
                     <InputError :message="form.errors.confirmed_overwrite" class="mt-2" />
                 </div>
 
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Para confirmar, digite <strong>SOBRESCREVER</strong> abaixo:
+                    </label>
+                    <input
+                        v-model="form.confirm_text"
+                        type="text"
+                        placeholder="SOBRESCREVER"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-rose-500 focus:ring-rose-500 text-sm uppercase"
+                    />
+                    <InputError :message="form.errors.confirm_text" class="mt-2" />
+                </div>
+
                 <div class="flex justify-end space-x-3">
                     <SecondaryButton @click="isModalOpen = false">
                         Cancelar
                     </SecondaryButton>
 
                     <DangerButton
-                        :disabled="!form.confirmed_overwrite || form.processing"
+                        :disabled="!form.confirmed_overwrite || form.confirm_text.trim().toUpperCase() !== 'SOBRESCREVER' || form.processing"
                         @click="confirmReplaceAndSubmit"
                     >
                         Confirmar e Substituir Dados

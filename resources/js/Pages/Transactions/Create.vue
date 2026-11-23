@@ -2,12 +2,15 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
+import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed, watch } from 'vue';
+import axios from 'axios';
+import { computed, ref, watch } from 'vue';
 import { getLocalDateString } from '@/utils/localDate';
+import { maskCpfCnpj, maskPhone } from '@/utils/masks';
 
 interface Category {
     id: number;
@@ -63,6 +66,45 @@ watch(
         form.category_id = '';
     }
 );
+
+const clientList = ref<Client[]>([...props.clients]);
+const showQuickClientModal = ref(false);
+const quickClientSaving = ref(false);
+const quickClientError = ref('');
+const quickClient = ref({
+    name: '',
+    phone_e164: '',
+    document_type: 'cpf' as 'cpf' | 'cnpj',
+    document_number: '',
+    email: '',
+});
+
+const openQuickClientModal = () => {
+    quickClientError.value = '';
+    quickClient.value = { name: '', phone_e164: '', document_type: 'cpf', document_number: '', email: '' };
+    showQuickClientModal.value = true;
+};
+
+const submitQuickClient = async () => {
+    quickClientSaving.value = true;
+    quickClientError.value = '';
+    try {
+        const res = await axios.post(route('clients.quick-store'), quickClient.value);
+        const created: Client = res.data.client;
+        clientList.value.push(created);
+        form.client_id = created.id;
+        showQuickClientModal.value = false;
+    } catch (err: any) {
+        const errors = err?.response?.data?.errors;
+        if (errors) {
+            quickClientError.value = Object.values(errors).flat().join(' ');
+        } else {
+            quickClientError.value = 'Não foi possível cadastrar o cliente.';
+        }
+    } finally {
+        quickClientSaving.value = false;
+    }
+};
 
 const submit = () => {
     form.post(route('transactions.store'));
@@ -197,14 +239,23 @@ const submit = () => {
 
                         <!-- Cliente Opcional -->
                         <div>
-                            <InputLabel for="client_id" value="Cliente / Fornecedor Vinculado" />
+                            <div class="flex items-center justify-between">
+                                <InputLabel for="client_id" value="Cliente / Fornecedor Vinculado" />
+                                <button
+                                    type="button"
+                                    @click="openQuickClientModal"
+                                    class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                                >
+                                    + Cadastrar novo cliente
+                                </button>
+                            </div>
                             <select
                                 id="client_id"
                                 v-model="form.client_id"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                             >
                                 <option value="">Nenhum (Venda anônima ou geral)</option>
-                                <option v-for="c in clients" :key="c.id" :value="c.id">
+                                <option v-for="c in clientList" :key="c.id" :value="c.id">
                                     {{ c.name }}
                                 </option>
                             </select>
@@ -228,5 +279,65 @@ const submit = () => {
                 </div>
             </div>
         </div>
+
+        <!-- Modal Cadastro Rápido de Cliente -->
+        <Modal :show="showQuickClientModal" @close="showQuickClientModal = false">
+            <form @submit.prevent="submitQuickClient" class="p-6 space-y-4">
+                <h3 class="text-lg font-bold text-gray-900">Cadastrar Cliente na Venda</h3>
+                <p v-if="quickClientError" class="text-sm text-rose-600">{{ quickClientError }}</p>
+                <div>
+                    <InputLabel for="tx_quick_name" value="Nome Completo *" />
+                    <TextInput id="tx_quick_name" v-model="quickClient.name" type="text" class="mt-1 block w-full" required />
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <InputLabel for="tx_quick_phone" value="Celular / WhatsApp" />
+                        <TextInput
+                            id="tx_quick_phone"
+                            :model-value="quickClient.phone_e164"
+                            @input="quickClient.phone_e164 = maskPhone(($event.target as HTMLInputElement).value)"
+                            type="text"
+                            maxlength="15"
+                            class="mt-1 block w-full"
+                            placeholder="(81) 99999-8888"
+                        />
+                    </div>
+                    <div>
+                        <InputLabel for="tx_quick_email" value="E-mail" />
+                        <TextInput id="tx_quick_email" v-model="quickClient.email" type="email" class="mt-1 block w-full" placeholder="cliente@exemplo.com" />
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <InputLabel for="tx_quick_doc_type" value="Tipo" />
+                        <select
+                            id="tx_quick_doc_type"
+                            v-model="quickClient.document_type"
+                            @change="quickClient.document_number = maskCpfCnpj(quickClient.document_number, quickClient.document_type)"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        >
+                            <option value="cpf">CPF</option>
+                            <option value="cnpj">CNPJ</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <InputLabel for="tx_quick_doc" value="CPF / CNPJ" />
+                        <TextInput
+                            id="tx_quick_doc"
+                            :model-value="quickClient.document_number"
+                            @input="quickClient.document_number = maskCpfCnpj(($event.target as HTMLInputElement).value, quickClient.document_type)"
+                            type="text"
+                            :maxlength="quickClient.document_type === 'cpf' ? 14 : 18"
+                            class="mt-1 block w-full"
+                            :placeholder="quickClient.document_type === 'cpf' ? '000.000.000-00' : '00.000.000/0000-00'"
+                        />
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <SecondaryButton type="button" @click="showQuickClientModal = false">Cancelar</SecondaryButton>
+                    <PrimaryButton :disabled="quickClientSaving">Salvar e Selecionar</PrimaryButton>
+                </div>
+            </form>
+        </Modal>
     </AuthenticatedLayout>
 </template>

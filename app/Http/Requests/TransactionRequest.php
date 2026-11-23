@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class TransactionRequest extends FormRequest
 {
@@ -36,10 +37,24 @@ class TransactionRequest extends FormRequest
             'amount' => ['required', 'numeric', 'min:0.01'],
             'occurred_on' => ['required', 'date'],
             'description' => ['required', 'string', 'max:255'],
-            'category_id' => ['nullable', 'exists:transaction_categories,id'],
+            'category_id' => [
+                'nullable',
+                Rule::exists('transaction_categories', 'id')
+                    ->where('user_id', $this->user()->id),
+            ],
             'payment_method' => ['required', 'in:pix,cash,card,other'],
-            'client_id' => ['nullable', 'exists:clients,id'],
-            'appointment_id' => ['nullable', 'exists:appointments,id'],
+            'client_id' => [
+                'nullable',
+                Rule::exists('clients', 'id')
+                    ->where('user_id', $this->user()->id)
+                    ->whereNull('deleted_at'),
+            ],
+            'appointment_id' => [
+                'nullable',
+                Rule::exists('appointments', 'id')
+                    ->where('user_id', $this->user()->id)
+                    ->whereNull('deleted_at'),
+            ],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
     }

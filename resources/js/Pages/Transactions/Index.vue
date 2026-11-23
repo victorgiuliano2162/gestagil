@@ -23,6 +23,7 @@ interface TransactionItem {
     payment_method: string;
     category: Category | null;
     client: Client | null;
+    has_active_receipt?: boolean;
 }
 
 interface PaginatedTransactions {
@@ -216,11 +217,19 @@ const deleteTransaction = (id: number) => {
                                             📄 Recibo
                                         </Link>
                                         <button
+                                            v-if="!t.has_active_receipt"
                                             @click="deleteTransaction(t.id)"
                                             class="text-rose-600 hover:text-rose-900 font-semibold"
                                         >
                                             Excluir
                                         </button>
+                                        <span
+                                            v-else
+                                            title="Cancele o recibo ativo antes de excluir este lançamento"
+                                            class="text-gray-400 font-semibold cursor-not-allowed"
+                                        >
+                                            Excluir
+                                        </span>
                                     </td>
                                 </tr>
                             </tbody>

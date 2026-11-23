@@ -26,6 +26,7 @@ class TransactionController extends Controller
 
         $query = Transaction::query()
             ->with(['category:id,name,color', 'client:id,name'])
+            ->withExists(['receipts as has_active_receipt' => fn ($q) => $q->where('status', 'issued')])
             ->whereBetween('occurred_on', [$startOfMonth, $endOfMonth])
             ->when($type, fn ($q, $t) => $q->where('type', $t));
 
@@ -118,6 +119,10 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction): RedirectResponse
     {
+        if ($transaction->receipts()->where('status', 'issued')->exists()) {
+            return back()->with('error', 'Não é possível excluir um lançamento com recibo ativo. Cancele o recibo antes.');
+        }
+
         $transaction->delete();
 
         return redirect()->route('transactions.index')

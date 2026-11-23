@@ -165,3 +165,81 @@ test('user can soft delete transaction', function () {
 
     $this->assertSoftDeleted('transactions', ['id' => $trans->id]);
 });
+
+test('transaction cannot reference client, appointment or category belonging to another user', function () {
+    $userA = User::factory()->withDefaultCategories()->create();
+    $userB = User::factory()->withDefaultCategories()->create();
+
+    $catA = $userA->categories()->where('type', 'income')->first();
+    $clientA = Client::create([
+        'user_id' => $userA->id,
+        'name' => 'Cliente A',
+    ]);
+    $apptA = Appointment::create([
+        'user_id' => $userA->id,
+        'client_id' => $clientA->id,
+        'service_description' => 'Serviço A',
+        'service_at' => now(),
+    ]);
+
+    $response = $this->actingAs($userB)->post(route('transactions.store'), [
+        'type' => 'income',
+        'amount' => '100,00',
+        'description' => 'Tentativa cross-tenant',
+        'occurred_on' => now()->format('Y-m-d'),
+        'payment_method' => 'pix',
+        'category_id' => $catA->id,
+        'client_id' => $clientA->id,
+        'appointment_id' => $apptA->id,
+    ]);
+
+    $response->assertSessionHasErrors(['category_id', 'client_id', 'appointment_id']);
+    expect(Transaction::withoutGlobalScopes()->where('user_id', $userB->id)->count())->toBe(0);
+});
+
+test('cannot delete transaction with active receipt until receipt is canceled', function () {
+    $user = User::factory()->withDefaultCategories()->create();
+
+    $trans = Transaction::create([
+        'user_id' => $user->id,
+        'type' => 'income',
+        'amount_cents' => 25000,
+        'description' => 'Serviço com recibo',
+        'occurred_on' => now()->toDateString(),
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+
+    $receipt = \App\Models\Receipt::create([
+        'user_id' => $user->id,
+        'transaction_id' => $trans->id,
+        'code' => \Illuminate\Support\Str::uuid()->toString(),
+        'year' => (int) now()->format('Y'),
+        'number' => 1,
+        'status' => 'issued',
+        'issued_at' => now(),
+        'amount_cents' => 25000,
+        'payment_method' => 'pix',
+        'description' => 'Serviço com recibo',
+        'payer_name' => 'Pagador',
+        'issuer_snapshot' => ['display_name' => 'Loja'],
+    ]);
+
+    $this->actingAs($user)
+        ->delete(route('transactions.destroy', $trans))
+        ->assertSessionHas('error');
+
+    $this->assertDatabaseHas('transactions', [
+        'id' => $trans->id,
+        'deleted_at' => null,
+    ]);
+
+    // Cancelar o recibo libera a exclusão
+    $receipt->update(['status' => 'canceled', 'canceled_at' => now()]);
+
+    $this->actingAs($user)
+        ->delete(route('transactions.destroy', $trans))
+        ->assertRedirect(route('transactions.index'))
+        ->assertSessionHas('success');
+
+    $this->assertSoftDeleted('transactions', ['id' => $trans->id]);
+});

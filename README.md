@@ -8,7 +8,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Ativo-success?style=flat-square" alt="Status">
-  <img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=flat-square&logo=laravel" alt="Laravel">
+  <img src="https://img.shields.io/badge/Laravel-13.x-FF2D20?style=flat-square&logo=laravel" alt="Laravel">
   <img src="https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=flat-square&logo=vue.js" alt="Vue 3">
   <img src="https://img.shields.io/badge/Inertia.js-2.x-9553E9?style=flat-square&logo=inertia" alt="Inertia.js">
   <img src="https://img.shields.io/badge/SQLite-WAL%20Mode-003B57?style=flat-square&logo=sqlite" alt="SQLite">
@@ -104,12 +104,12 @@ flowchart LR
 
 | Camada | Tecnologia | Destaque |
 | :--- | :--- | :--- |
-| **Backend** | **PHP 8.3+** & **Laravel 11** | Arquitetura monolítica robusta, Actions especializadas, Policies e FormRequests. |
-| **Frontend** | **Inertia.js 2** + **Vue 3** + **TypeScript** | Experiência fluida de SPA sem duplicar rotas ou APIs; Tailwind CSS + shadcn-vue. |
+| **Backend** | **PHP 8.3+** & **Laravel 13** | Arquitetura monolítica robusta, Actions especializadas e FormRequests. |
+| **Frontend** | **Inertia.js 2** + **Vue 3** + **TypeScript** | Experiência fluida de SPA sem duplicar rotas ou APIs; Tailwind CSS. |
 | **Banco de Dados** | **SQLite (Modo WAL)** | Zero latência de rede, concorrência otimizada com `BEGIN IMMEDIATE` e `busy_timeout`. |
 | **Documentos** | **DomPDF** | Renderização rápida em memória de recibos com fontes embutidas (DejaVu). |
 | **Infraestrutura** | **FrankenPHP + Docker** | Container único em produção com Caddy embutido e performance nativa. |
-| **Testes** | **Pest PHP** | Mais de 60 testes automatizados cobrindo integração, regras de negócio e isolamento multi-tenant. |
+| **Testes** | **Pest PHP** | Mais de 80 testes automatizados cobrindo integração, regras de negócio e isolamento multi-tenant. |
 
 ---
 

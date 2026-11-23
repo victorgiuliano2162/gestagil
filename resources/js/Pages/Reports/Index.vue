@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { formatPaymentMethod } from '@/utils/paymentMethod';
+import { maskPhone } from '@/utils/masks';
 
 const currentYear = new Date().getFullYear();
 const availableYears = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1];
@@ -367,7 +368,7 @@ const maxAnnualAmount = () => {
                                             </Link>
                                         </td>
                                         <td class="px-6 py-4 text-gray-500 whitespace-nowrap">
-                                            {{ client.phone_e164 || '-' }}
+                                            {{ client.phone_e164 ? maskPhone(client.phone_e164) : '-' }}
                                         </td>
                                         <td class="px-6 py-4 text-center font-bold text-gray-700 whitespace-nowrap">
                                             {{ client.transactions_count }}

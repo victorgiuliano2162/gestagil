@@ -10,6 +10,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import axios from 'axios';
 import { ref } from 'vue';
 import { getLocalDateTimeString } from '@/utils/localDate';
+import { maskCpfCnpj, maskPhone } from '@/utils/masks';
 
 interface Client {
     id: number;
@@ -39,13 +40,13 @@ const quickClientSaving = ref(false);
 const quickClientError = ref('');
 const quickClient = ref({
     name: '',
-    phone: '',
+    phone_e164: '',
     document_number: '',
 });
 
 const openQuickClientModal = () => {
     quickClientError.value = '';
-    quickClient.value = { name: '', phone: '', document_number: '' };
+    quickClient.value = { name: '', phone_e164: '', document_number: '' };
     showQuickClientModal.value = true;
 };
 
@@ -118,7 +119,7 @@ const submit = () => {
                             >
                                 <option value="" disabled>Selecione um cliente...</option>
                                 <option v-for="c in clientList" :key="c.id" :value="c.id">
-                                    {{ c.name }} {{ c.phone_e164 ? `(${c.phone_e164})` : '' }}
+                                    {{ c.name }} {{ c.phone_e164 ? `(${maskPhone(c.phone_e164)})` : '' }}
                                 </option>
                             </select>
                             <InputError class="mt-2" :message="form.errors.client_id" />
@@ -205,12 +206,28 @@ const submit = () => {
                     <TextInput id="quick_name" v-model="quickClient.name" type="text" class="mt-1 block w-full" required />
                 </div>
                 <div>
-                    <InputLabel for="quick_phone" value="Telefone / WhatsApp" />
-                    <TextInput id="quick_phone" v-model="quickClient.phone" type="text" class="mt-1 block w-full" placeholder="(81) 99999-9999" />
+                    <InputLabel for="quick_phone" value="Celular / WhatsApp" />
+                    <TextInput
+                        id="quick_phone"
+                        :model-value="quickClient.phone_e164"
+                        @input="quickClient.phone_e164 = maskPhone(($event.target as HTMLInputElement).value)"
+                        type="text"
+                        maxlength="15"
+                        class="mt-1 block w-full"
+                        placeholder="(81) 99999-9999"
+                    />
                 </div>
                 <div>
                     <InputLabel for="quick_doc" value="CPF / CNPJ" />
-                    <TextInput id="quick_doc" v-model="quickClient.document_number" type="text" class="mt-1 block w-full" />
+                    <TextInput
+                        id="quick_doc"
+                        :model-value="quickClient.document_number"
+                        @input="quickClient.document_number = maskCpfCnpj(($event.target as HTMLInputElement).value)"
+                        type="text"
+                        maxlength="18"
+                        class="mt-1 block w-full"
+                        placeholder="000.000.000-00"
+                    />
                 </div>
                 <div class="flex justify-end space-x-3 pt-2">
                     <SecondaryButton type="button" @click="showQuickClientModal = false">Cancelar</SecondaryButton>

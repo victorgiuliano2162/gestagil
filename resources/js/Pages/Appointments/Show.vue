@@ -6,6 +6,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { maskPhone } from '@/utils/masks';
 
 interface Client {
     id: number;
@@ -196,7 +197,7 @@ const getStatusBadge = (s: string) => {
                                     target="_blank"
                                     class="text-indigo-600 underline font-medium"
                                 >
-                                    {{ appointment.client.phone_e164 }} (Conversar)
+                                    {{ maskPhone(appointment.client.phone_e164) }} (Conversar)
                                 </a>
                                 <span v-else class="text-gray-400">Não informado</span>
                             </dd>

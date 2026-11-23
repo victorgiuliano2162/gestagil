@@ -204,10 +204,22 @@ test('quick client creation, client show history and appointment filters work', 
     // Quick store JSON
     $quickRes = $this->actingAs($user)->postJson(route('clients.quick-store'), [
         'name' => 'Cliente Rápido',
-        'phone' => '(81) 99999-1234',
+        'phone_e164' => '(81) 99999-1234',
+        'document_type' => 'cpf',
+        'document_number' => '123.456.789-01',
     ]);
-    $quickRes->assertCreated()->assertJsonPath('client.name', 'Cliente Rápido');
+    $quickRes->assertCreated()
+        ->assertJsonPath('client.name', 'Cliente Rápido')
+        ->assertJsonPath('client.phone_e164', '81999991234');
     $clientId = $quickRes->json('client.id');
+
+    // Invalid phone / document regex rejected
+    $this->actingAs($user)->postJson(route('clients.quick-store'), [
+        'name' => 'Cliente Inválido',
+        'phone_e164' => '123',
+        'document_number' => '12345',
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['phone_e164', 'document_number']);
 
     $otherClient = Client::create(['user_id' => $user->id, 'name' => 'Outro Cliente']);
 

@@ -17,6 +17,9 @@ if [ "$DB_CONNECTION" = "sqlite" ] && [ -n "$DB_DATABASE" ]; then
     fi
 fi
 
+# Run pending database migrations automatically on container startup
+php artisan migrate --force
+
 if [ "$APP_ENV" = "production" ]; then
     php artisan optimize || true
 fi

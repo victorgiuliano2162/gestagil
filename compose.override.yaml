@@ -7,6 +7,8 @@ services:
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
+      - MAIL_HOST=mailpit
+      - MAIL_PORT=1025
 
   vite:
     image: node:22-alpine

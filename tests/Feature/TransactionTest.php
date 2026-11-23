@@ -423,3 +423,39 @@ test('user can edit transaction without active receipt and RN-22 locks fields wh
 
     expect($tx->refresh()->amount_cents)->toBe(30000);
 });
+
+test('transactions index filters by category, payment method and client', function () {
+    $user = User::factory()->withDefaultCategories()->create();
+    $cat = $user->categories()->where('type', 'income')->first();
+    $client = Client::create(['user_id' => $user->id, 'name' => 'Cliente Alvo']);
+
+    Transaction::create([
+        'user_id' => $user->id,
+        'category_id' => $cat->id,
+        'client_id' => $client->id,
+        'type' => 'income',
+        'amount_cents' => 12000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Alvo',
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+
+    Transaction::create([
+        'user_id' => $user->id,
+        'type' => 'expense',
+        'amount_cents' => 5000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Outro',
+        'payment_method' => PaymentMethod::Cash,
+    ]);
+
+    $this->actingAs($user)->get(route('transactions.index', [
+        'category_id' => $cat->id,
+        'payment_method' => 'pix',
+        'client_id' => $client->id,
+    ]))->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('transactions.data', 1)
+            ->where('transactions.data.0.description', 'Alvo')
+        );
+});

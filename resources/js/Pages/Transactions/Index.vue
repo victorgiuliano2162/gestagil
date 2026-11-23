@@ -44,16 +44,34 @@ interface Summary {
 const props = defineProps<{
     transactions: PaginatedTransactions;
     summary: Summary;
-    filters: { type?: string; month: string };
+    filters: {
+        type?: string;
+        month: string;
+        category_id?: number | null;
+        payment_method?: string | null;
+        client_id?: number | null;
+    };
+    categories: { id: number; name: string; type: string }[];
+    clients: { id: number; name: string }[];
+    paymentMethods: { value: string; label: string }[];
 }>();
 
 const month = ref(props.filters.month);
 const selectedType = ref(props.filters.type || '');
+const selectedCategory = ref(props.filters.category_id ? String(props.filters.category_id) : '');
+const selectedPaymentMethod = ref(props.filters.payment_method || '');
+const selectedClient = ref(props.filters.client_id ? String(props.filters.client_id) : '');
 
 const applyFilters = () => {
     router.get(
         route('transactions.index'),
-        { month: month.value, type: selectedType.value || undefined },
+        {
+            month: month.value,
+            type: selectedType.value || undefined,
+            category_id: selectedCategory.value || undefined,
+            payment_method: selectedPaymentMethod.value || undefined,
+            client_id: selectedClient.value || undefined,
+        },
         { preserveState: true, replace: true }
     );
 };
@@ -89,6 +107,12 @@ const deleteTransaction = (id: number) => {
                     </p>
                 </div>
                 <div class="flex items-center space-x-2">
+                    <Link
+                        :href="route('categories.index')"
+                        class="rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                    >
+                        Categorias
+                    </Link>
                     <Link
                         :href="route('transactions.create', { type: 'expense' })"
                         class="rounded-md bg-rose-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500"
@@ -136,15 +160,46 @@ const deleteTransaction = (id: number) => {
 
                 <!-- Tabela de Lançamentos -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div class="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <div class="flex items-center space-x-3 w-full sm:w-auto">
-                            <input
-                                v-model="month"
-                                type="month"
-                                @change="applyFilters"
-                                class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            />
-                        </div>
+                    <div class="mb-6 flex flex-col gap-4">
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                                <input
+                                    v-model="month"
+                                    type="month"
+                                    @change="applyFilters"
+                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                                <select
+                                    v-model="selectedCategory"
+                                    @change="applyFilters"
+                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                >
+                                    <option value="">Todas as categorias</option>
+                                    <option v-for="c in categories" :key="c.id" :value="String(c.id)">
+                                        {{ c.name }}
+                                    </option>
+                                </select>
+                                <select
+                                    v-model="selectedPaymentMethod"
+                                    @change="applyFilters"
+                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                >
+                                    <option value="">Todos os meios</option>
+                                    <option v-for="pm in paymentMethods" :key="pm.value" :value="pm.value">
+                                        {{ pm.label }}
+                                    </option>
+                                </select>
+                                <select
+                                    v-model="selectedClient"
+                                    @change="applyFilters"
+                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                >
+                                    <option value="">Todos os clientes</option>
+                                    <option v-for="cl in clients" :key="cl.id" :value="String(cl.id)">
+                                        {{ cl.name }}
+                                    </option>
+                                </select>
+                            </div>
 
                         <div class="flex items-center space-x-2 w-full sm:w-auto">
                             <button
@@ -169,6 +224,7 @@ const deleteTransaction = (id: number) => {
                                 Saídas
                             </button>
                         </div>
+                    </div>
                     </div>
 
                     <div class="overflow-x-auto">

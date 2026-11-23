@@ -22,6 +22,9 @@ class TransactionController extends Controller
     {
         $type = $request->input('type');
         $month = $request->input('month', now()->format('Y-m'));
+        $categoryId = $request->integer('category_id') ?: null;
+        $paymentMethod = $request->input('payment_method') ?: null;
+        $clientId = $request->integer('client_id') ?: null;
 
         $startOfMonth = Carbon::parse($month.'-01')->startOfMonth()->toDateString();
         $endOfMonth = Carbon::parse($month.'-01')->endOfMonth()->toDateString();
@@ -30,7 +33,10 @@ class TransactionController extends Controller
             ->with(['category:id,name,color', 'client:id,name'])
             ->withExists(['receipts as has_active_receipt' => fn ($q) => $q->where('status', 'issued')])
             ->whereBetween('occurred_on', [$startOfMonth, $endOfMonth])
-            ->when($type, fn ($q, $t) => $q->where('type', $t));
+            ->when($type, fn ($q, $t) => $q->where('type', $t))
+            ->when($categoryId, fn ($q, $c) => $q->where('category_id', $c))
+            ->when($paymentMethod, fn ($q, $pm) => $q->where('payment_method', $pm))
+            ->when($clientId, fn ($q, $cl) => $q->where('client_id', $cl));
 
         // Totais do mês
         $totalIncomeCents = (int) Transaction::where('type', 'income')
@@ -57,7 +63,16 @@ class TransactionController extends Controller
             'filters' => [
                 'type' => $type,
                 'month' => $month,
+                'category_id' => $categoryId,
+                'payment_method' => $paymentMethod,
+                'client_id' => $clientId,
             ],
+            'categories' => TransactionCategory::orderBy('name')->get(['id', 'name', 'type']),
+            'clients' => Client::orderBy('name')->get(['id', 'name']),
+            'paymentMethods' => collect(PaymentMethod::cases())->map(fn ($m) => [
+                'value' => $m->value,
+                'label' => $m->label(),
+            ]),
         ]);
     }
 

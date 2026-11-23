@@ -9,6 +9,7 @@ use App\Models\Receipt;
 use App\Models\Transaction;
 use App\Models\TransactionCategory;
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -48,11 +49,29 @@ class RestoreUserDataAction
             $data = $payload['data'];
 
             // 1. Business Profile
-            if (! empty($data['business_profile'])) {
-                BusinessProfile::withoutGlobalScopes()->updateOrCreate(
-                    ['user_id' => $user->id],
-                    $data['business_profile']
-                );
+            if (! empty($data['business_profile']) && is_array($data['business_profile'])) {
+                $profileAttributes = Arr::only($data['business_profile'], [
+                    'display_name',
+                    'store_name',
+                    'activity_description',
+                    'document_type',
+                    'document_number',
+                    'phone',
+                    'postal_code',
+                    'street',
+                    'number',
+                    'complement',
+                    'neighborhood',
+                    'city',
+                    'state',
+                ]);
+
+                if (! empty($profileAttributes)) {
+                    BusinessProfile::withoutGlobalScopes()->updateOrCreate(
+                        ['user_id' => $user->id],
+                        $profileAttributes
+                    );
+                }
             }
 
             // 2. Categories
@@ -248,6 +267,7 @@ class RestoreUserDataAction
                     }
 
                     $receipt = Receipt::withoutGlobalScopes()
+                        ->where('user_id', $user->id)
                         ->where('code', $code)
                         ->first();
 
@@ -287,6 +307,10 @@ class RestoreUserDataAction
                             $attributes['number'] = $maxNum + 1;
                         }
 
+                        if (Receipt::withoutGlobalScopes()->where('code', $code)->exists()) {
+                            $code = (string) Str::uuid();
+                        }
+
                         $attributes['code'] = $code;
                         Receipt::withoutGlobalScopes()->create($attributes);
                         $receiptsCount++;
@@ -319,8 +343,8 @@ class RestoreUserDataAction
     protected function clearUserData(User $user): void
     {
         Receipt::withoutGlobalScopes()->where('user_id', $user->id)->forceDelete();
-        Transaction::withoutGlobalScopes()->where('user_id', $user->id)->forceDelete();
-        Appointment::withoutGlobalScopes()->where('user_id', $user->id)->forceDelete();
-        Client::withoutGlobalScopes()->where('user_id', $user->id)->forceDelete();
+        Transaction::withoutGlobalScopes()->withTrashed()->where('user_id', $user->id)->forceDelete();
+        Appointment::withoutGlobalScopes()->withTrashed()->where('user_id', $user->id)->forceDelete();
+        Client::withoutGlobalScopes()->withTrashed()->where('user_id', $user->id)->forceDelete();
     }
 }

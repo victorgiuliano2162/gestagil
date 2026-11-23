@@ -281,3 +281,165 @@ test('restore in replace mode does not touch data of other users (tenant isolati
     expect($reloadedOther)->not->toBeNull()
         ->and($reloadedOther->name)->toBe('Cliente Intocavel do Outro Usuario');
 });
+
+test('restoring backup cannot hijack or overwrite another user receipt by code', function () {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    $clientA = Client::factory()->create(['user_id' => $userA->id]);
+    $txA = Transaction::create([
+        'user_id' => $userA->id,
+        'client_id' => $clientA->id,
+        'type' => 'income',
+        'amount_cents' => 50000,
+        'occurred_on' => now()->format('Y-m-d'),
+        'description' => 'Serviço Original A',
+    ]);
+
+    $stolenCode = (string) Str::uuid();
+    $receiptA = \App\Models\Receipt::create([
+        'user_id' => $userA->id,
+        'transaction_id' => $txA->id,
+        'client_id' => $clientA->id,
+        'year' => (int) now()->format('Y'),
+        'number' => 1,
+        'code' => $stolenCode,
+        'status' => 'issued',
+        'issued_at' => now(),
+        'amount_cents' => 50000,
+        'payment_method' => 'pix',
+        'description' => 'Recibo Original A',
+        'payer_name' => 'Pagador Original A',
+        'issuer_snapshot' => ['display_name' => 'Empresa A'],
+    ]);
+
+    $clientBUuid = (string) Str::uuid();
+    $txBUuid = (string) Str::uuid();
+
+    foreach (['merge', 'replace'] as $mode) {
+        $payload = [
+            'gestagil_backup_version' => 1,
+            'data' => [
+                'clients' => [
+                    ['uuid' => $clientBUuid, 'name' => 'Cliente B'],
+                ],
+                'appointments' => [],
+                'transactions' => [
+                    [
+                        'uuid' => $txBUuid,
+                        'client_uuid' => $clientBUuid,
+                        'type' => 'income',
+                        'amount_cents' => 100,
+                        'occurred_on' => now()->format('Y-m-d'),
+                        'description' => 'Lançamento B',
+                        'payment_method' => 'pix',
+                    ],
+                ],
+                'receipts' => [
+                    [
+                        'code' => $stolenCode,
+                        'transaction_uuid' => $txBUuid,
+                        'client_uuid' => $clientBUuid,
+                        'year' => (int) now()->format('Y'),
+                        'number' => 1,
+                        'status' => 'issued',
+                        'issued_at' => now()->toIso8601String(),
+                        'amount_cents' => 100,
+                        'payment_method' => 'cash',
+                        'description' => 'Tentativa de Sequestro',
+                        'payer_name' => 'Atacante B',
+                        'issuer_snapshot' => ['display_name' => 'Empresa B'],
+                    ],
+                ],
+            ],
+        ];
+
+        $file = UploadedFile::fake()->createWithContent(
+            'hijack_backup.json',
+            json_encode($payload)
+        );
+
+        $this->actingAs($userB)->post(route('backup.restore'), [
+            'backup_file' => $file,
+            'mode' => $mode,
+            'confirmed_overwrite' => $mode === 'replace',
+        ])->assertRedirect(route('backup.index'));
+
+        $receiptA->refresh();
+        expect($receiptA->user_id)->toBe($userA->id)
+            ->and($receiptA->payer_name)->toBe('Pagador Original A')
+            ->and($receiptA->amount_cents)->toBe(50000);
+
+        $importedB = \App\Models\Receipt::withoutGlobalScopes()
+            ->where('user_id', $userB->id)
+            ->first();
+        expect($importedB)->not->toBeNull()
+            ->and($importedB->code)->not->toBe($stolenCode);
+    }
+});
+
+test('export and replace restore preserve complete business profile and handle soft-deleted records', function () {
+    $user = User::factory()->create();
+    \App\Models\BusinessProfile::create([
+        'user_id' => $user->id,
+        'display_name' => 'Oficina Modelo',
+        'store_name' => 'Auto Center Modelo',
+        'activity_description' => 'Mecânica e Elétrica',
+        'document_type' => 'cnpj',
+        'document_number' => '12.345.678/0001-95',
+        'phone' => '81999990000',
+        'postal_code' => '50000-000',
+        'street' => 'Rua das Flores',
+        'number' => '123',
+        'complement' => 'Galpão B',
+        'neighborhood' => 'Centro',
+        'city' => 'Recife',
+        'state' => 'PE',
+    ]);
+
+    $client = Client::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Cliente Soft Deleted',
+    ]);
+    $clientUuid = $client->uuid;
+
+    $response = $this->actingAs($user)->get(route('backup.export'));
+    $response->assertOk();
+
+    $exportedJson = $response->streamedContent();
+    $exported = json_decode($exportedJson, true);
+
+    expect($exported['data']['business_profile'])->toMatchArray([
+        'display_name' => 'Oficina Modelo',
+        'store_name' => 'Auto Center Modelo',
+        'activity_description' => 'Mecânica e Elétrica',
+        'street' => 'Rua das Flores',
+        'number' => '123',
+        'complement' => 'Galpão B',
+        'neighborhood' => 'Centro',
+        'city' => 'Recife',
+        'state' => 'PE',
+    ]);
+
+    // Soft-delete client before replace restore with same UUID
+    $client->delete();
+
+    $file = UploadedFile::fake()->createWithContent('backup.json', $exportedJson);
+
+    $this->actingAs($user)->post(route('backup.restore'), [
+        'backup_file' => $file,
+        'mode' => 'replace',
+        'confirmed_overwrite' => true,
+    ])->assertRedirect(route('backup.index'))
+        ->assertSessionHas('success');
+
+    $restoredClient = Client::where('user_id', $user->id)->where('uuid', $clientUuid)->first();
+    expect($restoredClient)->not->toBeNull()
+        ->and($restoredClient->name)->toBe('Cliente Soft Deleted');
+
+    $restoredProfile = \App\Models\BusinessProfile::where('user_id', $user->id)->first();
+    expect($restoredProfile->street)->toBe('Rua das Flores')
+        ->and($restoredProfile->neighborhood)->toBe('Centro')
+        ->and($restoredProfile->complement)->toBe('Galpão B')
+        ->and($restoredProfile->activity_description)->toBe('Mecânica e Elétrica');
+});

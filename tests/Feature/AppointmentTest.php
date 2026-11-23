@@ -1,9 +1,13 @@
 <?php
 
 use App\Enums\AppointmentStatus;
+use App\Enums\PaymentMethod;
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Models\Receipt;
+use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 test('authenticated user can create appointment and respect state transitions', function () {
     $user = User::factory()->create();
@@ -107,7 +111,7 @@ test('cannot delete appointment with linked transactions', function () {
         'service_at' => now(),
     ]);
 
-    \App\Models\Transaction::create([
+    Transaction::create([
         'user_id' => $user->id,
         'client_id' => $client->id,
         'appointment_id' => $apptWithTx->id,
@@ -139,4 +143,57 @@ test('cannot delete appointment with linked transactions', function () {
         ->assertSessionHas('success');
 
     $this->assertSoftDeleted('appointments', ['id' => $apptWithoutTx->id]);
+});
+
+test('appointment show page includes linked transactions and active receipts', function () {
+    $user = User::factory()->withDefaultCategories()->create();
+    $client = Client::create([
+        'user_id' => $user->id,
+        'name' => 'Cliente Show',
+    ]);
+
+    $appointment = Appointment::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'service_description' => 'Instalação de som',
+        'service_at' => now(),
+        'status' => AppointmentStatus::Completed,
+    ]);
+
+    $tx = Transaction::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'appointment_id' => $appointment->id,
+        'type' => 'income',
+        'amount_cents' => 40000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Recebimento som',
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+
+    $receipt = Receipt::create([
+        'user_id' => $user->id,
+        'transaction_id' => $tx->id,
+        'client_id' => $client->id,
+        'code' => Str::uuid()->toString(),
+        'year' => (int) now()->format('Y'),
+        'number' => 1,
+        'status' => 'issued',
+        'issued_at' => now(),
+        'amount_cents' => 40000,
+        'payment_method' => 'pix',
+        'description' => 'Recebimento som',
+        'payer_name' => 'Cliente Show',
+        'issuer_snapshot' => ['display_name' => 'Loja'],
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('appointments.show', $appointment))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Appointments/Show')
+            ->has('transactions', 1)
+            ->where('transactions.0.id', $tx->id)
+            ->where('transactions.0.active_receipt.id', $receipt->id)
+        );
 });

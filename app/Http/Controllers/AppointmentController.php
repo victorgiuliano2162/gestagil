@@ -26,9 +26,9 @@ class AppointmentController extends Controller
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('service_description', 'like', "%{$search}%")
-                      ->orWhereHas('client', function ($clientQ) use ($search) {
-                          $clientQ->where('name', 'like', "%{$search}%");
-                      });
+                        ->orWhereHas('client', function ($clientQ) use ($search) {
+                            $clientQ->where('name', 'like', "%{$search}%");
+                        });
                 });
             })
             ->orderByDesc('service_at')
@@ -75,7 +75,7 @@ class AppointmentController extends Controller
 
     public function show(Appointment $appointment): Response
     {
-        $appointment->load('client');
+        $appointment->load(['client', 'transactions.category', 'transactions.activeReceipt']);
 
         return Inertia::render('Appointments/Show', [
             'appointment' => [
@@ -83,6 +83,22 @@ class AppointmentController extends Controller
                 'status_label' => $appointment->status->label(),
                 'status_color' => $appointment->status->color(),
             ],
+            'transactions' => $appointment->transactions->map(fn ($t) => [
+                'id' => $t->id,
+                'type' => $t->type,
+                'amount_cents' => $t->amount_cents,
+                'occurred_on' => $t->occurred_on->format('Y-m-d'),
+                'description' => $t->description,
+                'payment_method_label' => $t->payment_method->label(),
+                'category' => $t->category ? [
+                    'id' => $t->category->id,
+                    'name' => $t->category->name,
+                ] : null,
+                'active_receipt' => $t->activeReceipt ? [
+                    'id' => $t->activeReceipt->id,
+                    'formatted_number' => $t->activeReceipt->formatted_number,
+                ] : null,
+            ])->values(),
         ]);
     }
 

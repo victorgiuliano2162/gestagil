@@ -31,8 +31,25 @@ interface Appointment {
     created_at: string;
 }
 
+interface LinkedReceipt {
+    id: number;
+    formatted_number: string;
+}
+
+interface LinkedTransaction {
+    id: number;
+    type: 'income' | 'expense';
+    amount_cents: number;
+    occurred_on: string;
+    description: string;
+    payment_method_label: string;
+    category: { id: number; name: string } | null;
+    active_receipt: LinkedReceipt | null;
+}
+
 const props = defineProps<{
     appointment: Appointment;
+    transactions: LinkedTransaction[];
 }>();
 
 const confirmingCancel = ref(false);
@@ -68,6 +85,11 @@ const markAsCompleted = () => {
 const formatCurrency = (cents: number | null) => {
     if (cents === null) return 'Não informado';
     return (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+};
+
+const formatDateOnly = (iso: string) => {
+    const [y, m, d] = iso.slice(0, 10).split('-');
+    return `${d}/${m}/${y}`;
 };
 
 const getStatusBadge = (s: string) => {
@@ -111,6 +133,14 @@ const getStatusBadge = (s: string) => {
                         class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
                     >
                         &larr; Voltar
+                    </Link>
+
+                    <Link
+                        v-if="appointment.status !== 'canceled'"
+                        :href="route('transactions.create', { type: 'income', appointment_id: appointment.id })"
+                        class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+                    >
+                        + Registrar Recebimento
                     </Link>
 
                     <!-- Ações de Transição de Estado (RN-04) -->
@@ -204,6 +234,64 @@ const getStatusBadge = (s: string) => {
                         <p v-if="appointment.cancel_reason" class="mt-1 text-xs">
                             Motivo informado: {{ appointment.cancel_reason }}
                         </p>
+                    </div>
+                </div>
+
+                <!-- Lançamentos e Recibos Vinculados (RF-ATD-07) -->
+                <div class="bg-white p-6 shadow sm:rounded-lg space-y-4">
+                    <div class="flex items-center justify-between border-b pb-3">
+                        <h3 class="text-base font-semibold text-gray-900">
+                            Lançamentos e Recibos Vinculados
+                        </h3>
+                        <Link
+                            v-if="appointment.status !== 'canceled'"
+                            :href="route('transactions.create', { type: 'income', appointment_id: appointment.id })"
+                            class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                        >
+                            + Registrar Recebimento
+                        </Link>
+                    </div>
+
+                    <div v-if="transactions.length === 0" class="text-sm text-gray-500 py-4 text-center">
+                        Nenhum lançamento financeiro vinculado a este atendimento ainda.
+                    </div>
+
+                    <div v-else class="divide-y divide-gray-200">
+                        <div
+                            v-for="t in transactions"
+                            :key="t.id"
+                            class="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                        >
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ t.description }}</p>
+                                <p class="text-xs text-gray-500">
+                                    {{ formatDateOnly(t.occurred_on) }} · {{ t.payment_method_label }}
+                                    <span v-if="t.category"> · {{ t.category.name }}</span>
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span
+                                    class="text-sm font-bold"
+                                    :class="t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'"
+                                >
+                                    {{ t.type === 'income' ? '+' : '-' }} {{ formatCurrency(t.amount_cents) }}
+                                </span>
+                                <Link
+                                    v-if="t.active_receipt"
+                                    :href="route('receipts.show', t.active_receipt.id)"
+                                    class="rounded bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+                                >
+                                    Recibo {{ t.active_receipt.formatted_number }}
+                                </Link>
+                                <Link
+                                    v-else-if="t.type === 'income'"
+                                    :href="route('receipts.create', { transaction_id: t.id })"
+                                    class="rounded bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
+                                >
+                                    Emitir Recibo
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

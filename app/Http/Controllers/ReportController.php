@@ -136,21 +136,25 @@ class ReportController extends Controller
 
     private function getAnnualReport(int $userId, int $year): array
     {
+        $rows = Transaction::where('user_id', $userId)
+            ->whereBetween('occurred_on', ["{$year}-01-01", "{$year}-12-31"])
+            ->select(
+                DB::raw("CAST(strftime('%m', occurred_on) AS INTEGER) as month"),
+                'type',
+                DB::raw('SUM(amount_cents) as total_cents')
+            )
+            ->groupBy('month', 'type')
+            ->get();
+
+        $grouped = [];
+        foreach ($rows as $row) {
+            $grouped[(int) $row->month][$row->type] = (int) $row->total_cents;
+        }
+
         $months = [];
-
         for ($m = 1; $m <= 12; $m++) {
-            $start = Carbon::create($year, $m, 1)->startOfMonth()->toDateString();
-            $end = Carbon::create($year, $m, 1)->endOfMonth()->toDateString();
-
-            $income = (int) Transaction::where('user_id', $userId)
-                ->where('type', 'income')
-                ->whereBetween('occurred_on', [$start, $end])
-                ->sum('amount_cents');
-
-            $expense = (int) Transaction::where('user_id', $userId)
-                ->where('type', 'expense')
-                ->whereBetween('occurred_on', [$start, $end])
-                ->sum('amount_cents');
+            $income = $grouped[$m]['income'] ?? 0;
+            $expense = $grouped[$m]['expense'] ?? 0;
 
             $months[] = [
                 'month' => $m,

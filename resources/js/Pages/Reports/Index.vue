@@ -2,6 +2,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { formatPaymentMethod } from '@/utils/paymentMethod';
+
+const currentYear = new Date().getFullYear();
+const availableYears = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1];
 
 interface CategoryReport {
     type: 'income' | 'expense';
@@ -140,10 +144,7 @@ const maxAnnualAmount = () => {
                             @change="applyDateFilter"
                             class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
                         >
-                            <option :value="2024">Ano 2024</option>
-                            <option :value="2025">Ano 2025</option>
-                            <option :value="2026">Ano 2026</option>
-                            <option :value="2027">Ano 2027</option>
+                            <option v-for="y in availableYears" :key="y" :value="y">Ano {{ y }}</option>
                         </select>
                     </template>
                     <template v-else>
@@ -268,8 +269,8 @@ const maxAnnualAmount = () => {
                             <div v-else class="space-y-3">
                                 <div v-for="(m, idx) in (report as RevenueData).by_payment_method" :key="idx" class="flex items-center justify-between p-2 rounded hover:bg-gray-50 text-sm">
                                     <div class="flex items-center space-x-2">
-                                        <span class="font-bold text-xs uppercase px-2 py-0.5 rounded bg-gray-100 text-gray-700">
-                                            {{ m.payment_method }}
+                                        <span class="font-bold text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                            {{ formatPaymentMethod(m.payment_method) }}
                                         </span>
                                         <span class="text-xs text-gray-400">({{ m.count }} recebimentos)</span>
                                     </div>

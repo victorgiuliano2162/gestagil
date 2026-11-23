@@ -17,9 +17,44 @@ interface Client {
     created_at: string;
 }
 
+interface ClientAppointment {
+    id: number;
+    service_description: string;
+    service_at: string;
+    status: string;
+    status_label: string;
+    expected_amount_cents: number | null;
+}
+
+interface ClientTransaction {
+    id: number;
+    type: 'income' | 'expense';
+    amount_cents: number;
+    occurred_on: string;
+    description: string;
+    payment_method_label: string;
+    category_name: string | null;
+}
+
 const props = defineProps<{
     client: Client;
+    appointments: ClientAppointment[];
+    transactions: ClientTransaction[];
+    stats: {
+        total_spent_cents: number;
+        appointments_count: number;
+        transactions_count: number;
+    };
 }>();
+
+const formatCurrency = (cents: number) => {
+    return (cents / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+};
+
+const formatDateOnly = (iso: string) => {
+    const [y, m, d] = iso.slice(0, 10).split('-');
+    return `${d}/${m}/${y}`;
+};
 
 const confirmingClientDeletion = ref(false);
 const deleteForm = useForm({});
@@ -133,6 +168,86 @@ const deleteClient = () => {
                             </dd>
                         </div>
                     </dl>
+                </div>
+
+                <!-- Resumo de Relacionamento (RF-CLI-05) -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 shadow sm:rounded-lg">
+                        <span class="text-xs font-semibold uppercase text-gray-500">Total Faturado</span>
+                        <p class="mt-1 text-2xl font-bold text-emerald-600">{{ formatCurrency(stats.total_spent_cents) }}</p>
+                    </div>
+                    <div class="bg-white p-5 shadow sm:rounded-lg">
+                        <span class="text-xs font-semibold uppercase text-gray-500">Atendimentos</span>
+                        <p class="mt-1 text-2xl font-bold text-gray-900">{{ stats.appointments_count }}</p>
+                    </div>
+                    <div class="bg-white p-5 shadow sm:rounded-lg">
+                        <span class="text-xs font-semibold uppercase text-gray-500">Lançamentos</span>
+                        <p class="mt-1 text-2xl font-bold text-gray-900">{{ stats.transactions_count }}</p>
+                    </div>
+                </div>
+
+                <!-- Histórico de Atendimentos -->
+                <div class="bg-white p-6 shadow sm:rounded-lg">
+                    <div class="flex items-center justify-between border-b pb-3 mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Histórico de Atendimentos</h3>
+                        <Link
+                            :href="route('appointments.create', { client_id: client.id })"
+                            class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                        >
+                            + Novo Atendimento
+                        </Link>
+                    </div>
+                    <div v-if="appointments.length === 0" class="text-sm text-gray-500 py-4 text-center">
+                        Nenhum atendimento registrado para este cliente.
+                    </div>
+                    <div v-else class="divide-y divide-gray-200">
+                        <div
+                            v-for="a in appointments"
+                            :key="a.id"
+                            class="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                        >
+                            <div>
+                                <Link :href="route('appointments.show', a.id)" class="text-sm font-semibold text-indigo-600 hover:underline">
+                                    {{ a.service_description }}
+                                </Link>
+                                <p class="text-xs text-gray-500">
+                                    {{ new Date(a.service_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) }} · {{ a.status_label }}
+                                </p>
+                            </div>
+                            <span v-if="a.expected_amount_cents !== null" class="text-sm font-semibold text-gray-800">
+                                {{ formatCurrency(a.expected_amount_cents) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Histórico Financeiro -->
+                <div class="bg-white p-6 shadow sm:rounded-lg">
+                    <h3 class="text-lg font-medium text-gray-900 border-b pb-3 mb-4">Histórico Financeiro</h3>
+                    <div v-if="transactions.length === 0" class="text-sm text-gray-500 py-4 text-center">
+                        Nenhum lançamento financeiro vinculado a este cliente.
+                    </div>
+                    <div v-else class="divide-y divide-gray-200">
+                        <div
+                            v-for="t in transactions"
+                            :key="t.id"
+                            class="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                        >
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ t.description }}</p>
+                                <p class="text-xs text-gray-500">
+                                    {{ formatDateOnly(t.occurred_on) }} · {{ t.payment_method_label }}
+                                    <span v-if="t.category_name"> · {{ t.category_name }}</span>
+                                </p>
+                            </div>
+                            <span
+                                class="text-sm font-bold"
+                                :class="t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'"
+                            >
+                                {{ t.type === 'income' ? '+' : '-' }} {{ formatCurrency(t.amount_cents) }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Modal de Confirmação de Exclusão -->

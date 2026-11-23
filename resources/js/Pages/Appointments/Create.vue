@@ -2,10 +2,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
+import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import axios from 'axios';
+import { ref } from 'vue';
+import { getLocalDateTimeString } from '@/utils/localDate';
 
 interface Client {
     id: number;
@@ -19,7 +23,7 @@ const props = defineProps<{
 }>();
 
 // Data/hora atual no fuso local padrão formato YYYY-MM-DDTHH:mm
-const nowIso = new Date().toISOString().slice(0, 16);
+const nowIso = getLocalDateTimeString();
 
 const form = useForm({
     client_id: props.selectedClientId || (props.clients.length > 0 ? props.clients[0].id : ''),
@@ -28,6 +32,43 @@ const form = useForm({
     expected_amount: '',
     technical_notes: '',
 });
+
+const clientList = ref<Client[]>([...props.clients]);
+const showQuickClientModal = ref(false);
+const quickClientSaving = ref(false);
+const quickClientError = ref('');
+const quickClient = ref({
+    name: '',
+    phone: '',
+    document_number: '',
+});
+
+const openQuickClientModal = () => {
+    quickClientError.value = '';
+    quickClient.value = { name: '', phone: '', document_number: '' };
+    showQuickClientModal.value = true;
+};
+
+const submitQuickClient = async () => {
+    quickClientSaving.value = true;
+    quickClientError.value = '';
+    try {
+        const res = await axios.post(route('clients.quick-store'), quickClient.value);
+        const created: Client = res.data.client;
+        clientList.value.push(created);
+        form.client_id = created.id;
+        showQuickClientModal.value = false;
+    } catch (err: any) {
+        const errors = err?.response?.data?.errors;
+        if (errors) {
+            quickClientError.value = Object.values(errors).flat().join(' ');
+        } else {
+            quickClientError.value = 'Não foi possível cadastrar o cliente.';
+        }
+    } finally {
+        quickClientSaving.value = false;
+    }
+};
 
 const submit = () => {
     form.post(route('appointments.store'));
@@ -60,12 +101,13 @@ const submit = () => {
                         <div>
                             <div class="flex items-center justify-between">
                                 <InputLabel for="client_id" value="Cliente *" />
-                                <Link
-                                    :href="route('clients.create')"
+                                <button
+                                    type="button"
+                                    @click="openQuickClientModal"
                                     class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
                                 >
                                     + Cadastrar novo cliente
-                                </Link>
+                                </button>
                             </div>
 
                             <select
@@ -75,7 +117,7 @@ const submit = () => {
                                 required
                             >
                                 <option value="" disabled>Selecione um cliente...</option>
-                                <option v-for="c in clients" :key="c.id" :value="c.id">
+                                <option v-for="c in clientList" :key="c.id" :value="c.id">
                                     {{ c.name }} {{ c.phone_e164 ? `(${c.phone_e164})` : '' }}
                                 </option>
                             </select>
@@ -152,5 +194,29 @@ const submit = () => {
                 </div>
             </div>
         </div>
+
+        <!-- Modal Cadastro Rápido de Cliente (RF-ATD-06) -->
+        <Modal :show="showQuickClientModal" @close="showQuickClientModal = false">
+            <form @submit.prevent="submitQuickClient" class="p-6 space-y-4">
+                <h3 class="text-lg font-bold text-gray-900">Cadastro Rápido de Cliente</h3>
+                <p v-if="quickClientError" class="text-sm text-rose-600">{{ quickClientError }}</p>
+                <div>
+                    <InputLabel for="quick_name" value="Nome Completo *" />
+                    <TextInput id="quick_name" v-model="quickClient.name" type="text" class="mt-1 block w-full" required />
+                </div>
+                <div>
+                    <InputLabel for="quick_phone" value="Telefone / WhatsApp" />
+                    <TextInput id="quick_phone" v-model="quickClient.phone" type="text" class="mt-1 block w-full" placeholder="(81) 99999-9999" />
+                </div>
+                <div>
+                    <InputLabel for="quick_doc" value="CPF / CNPJ" />
+                    <TextInput id="quick_doc" v-model="quickClient.document_number" type="text" class="mt-1 block w-full" />
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <SecondaryButton type="button" @click="showQuickClientModal = false">Cancelar</SecondaryButton>
+                    <PrimaryButton :disabled="quickClientSaving">Salvar e Selecionar</PrimaryButton>
+                </div>
+            </form>
+        </Modal>
     </AuthenticatedLayout>
 </template>

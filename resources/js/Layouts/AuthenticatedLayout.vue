@@ -271,6 +271,29 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Page Content -->
             <main>
+                <div
+                    v-if="$page.props.flash?.success || $page.props.flash?.error || $page.props.flash?.info"
+                    class="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 space-y-2"
+                >
+                    <div
+                        v-if="$page.props.flash?.success"
+                        class="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800"
+                    >
+                        {{ $page.props.flash.success }}
+                    </div>
+                    <div
+                        v-if="$page.props.flash?.error"
+                        class="rounded-md border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-800"
+                    >
+                        {{ $page.props.flash.error }}
+                    </div>
+                    <div
+                        v-if="$page.props.flash?.info"
+                        class="rounded-md border border-indigo-200 bg-indigo-50 p-4 text-sm font-medium text-indigo-800"
+                    >
+                        {{ $page.props.flash.info }}
+                    </div>
+                </div>
                 <slot />
             </main>
         </div>

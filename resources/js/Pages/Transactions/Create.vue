@@ -7,6 +7,7 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, watch } from 'vue';
+import { getLocalDateString } from '@/utils/localDate';
 
 interface Category {
     id: number;
@@ -38,7 +39,7 @@ const props = defineProps<{
     paymentMethods: PaymentMethodOption[];
 }>();
 
-const todayIso = new Date().toISOString().slice(0, 10);
+const todayIso = getLocalDateString();
 
 const form = useForm({
     type: props.defaultData.type,

@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicReceiptController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TransactionCategoryController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -50,11 +51,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/business-profile', [BusinessProfileController::class, 'update'])->name('business-profile.update');
     Route::get('/business-profile/logo', [BusinessProfileController::class, 'logo'])->name('business-profile.logo');
 
+    Route::post('/clients/quick', [ClientController::class, 'quickStore'])->name('clients.quick-store');
     Route::resource('clients', ClientController::class);
 
     Route::resource('appointments', AppointmentController::class);
     Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status');
 
+    Route::resource('categories', TransactionCategoryController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('transactions', TransactionController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
     Route::resource('receipts', ReceiptController::class)->only(['index', 'create', 'store', 'show']);

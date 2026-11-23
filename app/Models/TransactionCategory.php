@@ -5,11 +5,12 @@ namespace App\Models;
 use App\Traits\BelongsToUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class TransactionCategory extends Model
 {
-    use HasFactory, BelongsToUser;
+    use BelongsToUser, HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -26,5 +27,10 @@ class TransactionCategory extends Model
                 $category->name_key = Str::slug($category->name);
             }
         });
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class, 'category_id');
     }
 }

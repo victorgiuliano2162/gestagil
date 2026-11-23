@@ -13,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -176,6 +177,14 @@ class ReceiptController extends Controller
 
         $receipt = $result['receipt'];
 
+        Log::info('audit.receipt.issued', [
+            'user_id' => $user->id,
+            'receipt_id' => $receipt->id,
+            'transaction_id' => $receipt->transaction_id,
+            'number' => $receipt->formatted_number,
+            'amount_cents' => $receipt->amount_cents,
+        ]);
+
         return redirect()->route('receipts.show', $receipt->id)
             ->with('success', "Recibo Nº {$receipt->formatted_number} emitido com sucesso!");
     }
@@ -212,6 +221,13 @@ class ReceiptController extends Controller
             'status' => 'canceled',
             'canceled_at' => now(),
             'cancel_reason' => $request->cancel_reason,
+        ]);
+
+        Log::info('audit.receipt.canceled', [
+            'user_id' => $request->user()->id,
+            'receipt_id' => $receipt->id,
+            'number' => $receipt->formatted_number,
+            'reason' => $request->cancel_reason,
         ]);
 
         return redirect()->route('receipts.show', $receipt->id)

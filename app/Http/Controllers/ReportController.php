@@ -96,7 +96,9 @@ class ReportController extends Controller
         $completed = $appointments->where('status.value', 'completed')->count();
         $canceled = $appointments->where('status.value', 'canceled')->count();
 
-        $expectedTotalCents = (int) $appointments->sum('expected_amount_cents');
+        $expectedTotalCents = (int) $appointments
+            ->where('status.value', '!=', 'canceled')
+            ->sum('expected_amount_cents');
 
         return [
             'total_appointments' => $total,
@@ -112,6 +114,7 @@ class ReportController extends Controller
         // Top clientes por faturamento de entradas no período
         $topClients = Client::where('clients.user_id', $userId)
             ->join('transactions', 'clients.id', '=', 'transactions.client_id')
+            ->whereNull('transactions.deleted_at')
             ->where('transactions.type', 'income')
             ->whereBetween('transactions.occurred_on', [$startDate, $endDate])
             ->select(

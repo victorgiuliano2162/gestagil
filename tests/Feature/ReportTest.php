@@ -159,3 +159,61 @@ test('reports guarantee multi-tenant data isolation', function () {
             ->where('report.expense_cents', 0)
         );
 });
+
+test('reports exclude soft-deleted transactions from clients ranking and canceled appointments from expected total', function () {
+    $user = User::factory()->withDefaultCategories()->create();
+    $client = Client::create(['user_id' => $user->id, 'name' => 'Cliente Filtro']);
+
+    $activeTx = Transaction::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'type' => 'income',
+        'amount_cents' => 20000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Ativa',
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+
+    $deletedTx = Transaction::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'type' => 'income',
+        'amount_cents' => 80000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Excluída',
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+    $deletedTx->delete();
+
+    Appointment::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'service_description' => 'Ativo',
+        'service_at' => now(),
+        'expected_amount_cents' => 15000,
+        'status' => AppointmentStatus::Completed,
+    ]);
+
+    Appointment::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'service_description' => 'Cancelado',
+        'service_at' => now(),
+        'expected_amount_cents' => 50000,
+        'status' => AppointmentStatus::Canceled,
+    ]);
+
+    $this->actingAs($user)->get(route('reports.index', ['tab' => 'clientes']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('report.top_clients.0.total_revenue_cents', 20000)
+            ->where('report.top_clients.0.transactions_count', 1)
+        );
+
+    $this->actingAs($user)->get(route('reports.index', ['tab' => 'atendimentos']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('report.expected_total_cents', 15000)
+            ->where('report.canceled_count', 1)
+        );
+});

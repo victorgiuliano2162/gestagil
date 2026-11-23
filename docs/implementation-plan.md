@@ -216,24 +216,24 @@
 > Quando quiser executar a Fase 2 ou a Fase 3, peça para detalhar os itens abaixo no mesmo formato passo a passo.
 
 ### Fase 2: Experiência e produtividade
-- [ ] **#9 — Corrigir métricas de relatórios:** adicionar `whereNull('transactions.deleted_at')` em `ReportController::getClientsReport` e excluir atendimentos `canceled` de `expected_total_cents`.
-- [ ] **#10 — Feedback global (`flash`) e datas locais:** compartilhar `flash.info` em `HandleInertiaRequests`, exibir banners de `flash` em `AuthenticatedLayout.vue` e criar helper de data local (`America/Recife`) para formulários.
-- [ ] **#11 — Confiabilidade de backup e deploy:** mover `BACKUP_PATH`/`BACKUP_KEEP_DAYS` para `config/backup.php`, escapar path em `VACUUM INTO`, agendar `backup:run` diário em `routes/console.php` e corrigir porta do healthcheck em `scripts/deploy.sh`.
-- [ ] **#12 — Corrigir `.env.example`:** remover chaves `MAIL_*` duplicadas e alinhar `DB_DATABASE` ao uso local (mantendo override de container em `compose.yaml`).
-- [ ] **#13 — CI e logs de auditoria:** criar `.github/workflows/ci.yml` (`pint --test`, `php artisan test`, `npm run build`) e adicionar `Log::info` em login, exclusão de conta e emissão/cancelamento de recibos.
-- [ ] **#14 — Completude operacional (histórico, categorias e filtros):** exibir histórico/total em `Clients/Show.vue`, criar CRUD enxuto de `TransactionCategory`, adicionar filtros faltantes no caixa/atendimentos e modal de cliente rápido em `Appointments/Create.vue`.
+- [x] **#9 — Corrigir métricas de relatórios:** adicionar `whereNull('transactions.deleted_at')` em `ReportController::getClientsReport` e excluir atendimentos `canceled` de `expected_total_cents`.
+- [x] **#10 — Feedback global (`flash`) e datas locais:** compartilhar `flash.info` em `HandleInertiaRequests`, exibir banners de `flash` em `AuthenticatedLayout.vue` e criar helper de data local (`America/Recife`) para formulários.
+- [x] **#11 — Confiabilidade de backup e deploy:** mover `BACKUP_PATH`/`BACKUP_KEEP_DAYS` para `config/backup.php`, escapar path em `VACUUM INTO`, agendar `backup:run` diário em `routes/console.php` e corrigir porta do healthcheck em `scripts/deploy.sh`.
+- [x] **#12 — Corrigir `.env.example`:** remover chaves `MAIL_*` duplicadas e alinhar `DB_DATABASE` ao uso local (mantendo override de container em `compose.yaml`).
+- [x] **#13 — CI e logs de auditoria:** criar `.github/workflows/ci.yml` (`pint --test`, `php artisan test`, `npm run build`) e adicionar `Log::info` em login, exclusão de conta e emissão/cancelamento de recibos.
+- [x] **#14 — Completude operacional (histórico, categorias e filtros):** exibir histórico/total em `Clients/Show.vue`, criar CRUD enxuto de `TransactionCategory`, adicionar filtros faltantes no caixa/atendimentos e modal de cliente rápido em `Appointments/Create.vue`.
 
 ### Fase 3: Maturidade e escala
-- [ ] **#15 — Polimento pt-BR, endereço e aviso não-fiscal:** mapear labels pt-BR de `PaymentMethod` em toda UI e PDF, traduzir `"Log Out"`, formatar `occurred_on` em `Receipts/Create.vue`, gerar anos dinamicamente em `Reports/Index.vue`, incluir `neighborhood`/`complement` em `BusinessProfile/Edit.vue` e inserir aviso de documento não fiscal em `receipt.blade.php`.
-- [ ] **#16 — Performance e higiene de build/docs:** consolidar `getAnnualReport` em uma query `GROUP BY`, remover `@tailwindcss/vite` conflitante do `package.json`, atualizar `README.md` (Laravel 13, stack real) e adicionar `LICENSE`.
+- [x] **#15 — Polimento pt-BR, endereço e aviso não-fiscal:** mapear labels pt-BR de `PaymentMethod` em toda UI e PDF, traduzir `"Log Out"`, formatar `occurred_on` em `Receipts/Create.vue`, gerar anos dinamicamente em `Reports/Index.vue`, incluir `neighborhood`/`complement` em `BusinessProfile/Edit.vue` e inserir aviso de documento não fiscal em `receipt.blade.php`.
+- [x] **#16 — Performance e higiene de build/docs:** consolidar `getAnnualReport` em uma query `GROUP BY`, remover `@tailwindcss/vite` conflitante do `package.json`, atualizar `README.md` (Laravel 13, stack real) e adicionar `LICENSE`.
 
 ---
 
 ## 4. Checklist Final da Fase 1
 
-- [ ] Todos os itens `#1` a `#8` implementados e revisados.
-- [ ] Todos os novos testes de regressão (segurança cross-tenant, disco do logo, backup strict, bloqueios RN-22/RF-ATD-05, RN-02/03/05/07/08/18, edição de lançamentos e vínculo atendimento → caixa) escritos e passando.
-- [ ] Suíte completa executada sem falhas: `php artisan test`.
-- [ ] Formatação PHP validada: `vendor/bin/pint --dirty --format agent`.
-- [ ] Build e checagem de tipos TypeScript/Vue sem erros: `npm run build`.
-- [ ] Documentação afetada revisada (sem divergências novas introduzidas).
+- [x] Todos os itens `#1` a `#8` implementados e revisados.
+- [x] Todos os novos testes de regressão (segurança cross-tenant, disco do logo, backup strict, bloqueios RN-22/RF-ATD-05, RN-02/03/05/07/08/18, edição de lançamentos e vínculo atendimento → caixa) escritos e passando.
+- [x] Suíte completa executada sem falhas: `php artisan test`.
+- [x] Formatação PHP validada: `vendor/bin/pint --dirty --format agent`.
+- [x] Build e checagem de tipos TypeScript/Vue sem erros: `npm run build`.
+- [x] Documentação afetada revisada (sem divergências novas introduzidas).

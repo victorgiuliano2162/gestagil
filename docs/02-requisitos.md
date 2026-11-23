@@ -171,9 +171,9 @@ Legenda: ✔ permitido · ✖ negado · (P) somente os próprios dados.
 
 | Módulo | Telas (`05`) | Grupos de rotas (`04`) |
 | :--- | :--- | :--- |
-| AUT / NEG | S-01 a S-04, S-19, S-20 | `/login`, `/register`, `/forgot-password`, `/configuracoes/*` |
-| CLI | S-12, S-13, S-14 | `/clientes` |
-| ATD | S-07, S-08, S-09 | `/atendimentos` |
-| CX | S-10, S-11, S-21 | `/caixa`, `/configuracoes/categorias` |
-| REC | S-15, S-16, S-17, S-24 | `/recibos`, `/r/{code}` |
-| REL | S-06, S-18 | `/dashboard`, `/relatorios/*` |
+| AUT / NEG | S-01 a S-04, S-19, S-20 | `/login`, `/register`, `/forgot-password`, `/profile`, `/business-profile`, `/backup` |
+| CLI | S-12, S-13, S-14 | `/clients` |
+| ATD | S-07, S-08, S-09 | `/appointments` |
+| CX | S-10, S-11, S-21 | `/transactions`, `/categories` |
+| REC | S-15, S-16, S-17, S-24 | `/receipts`, `/r/{code}` |
+| REL | S-06, S-18 | `/dashboard`, `/relatorios` |

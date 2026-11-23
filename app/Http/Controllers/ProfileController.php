@@ -70,7 +70,7 @@ class ProfileController extends Controller
 
             if ($user->businessProfile) {
                 if ($user->businessProfile->logo_path) {
-                    Storage::disk('public')->delete($user->businessProfile->logo_path);
+                    Storage::disk('local')->delete($user->businessProfile->logo_path);
                 }
                 $user->businessProfile()->delete();
             }

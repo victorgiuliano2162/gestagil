@@ -144,3 +144,20 @@ test('correct password must be provided to delete account', function () {
 
     $this->assertNotNull($user->fresh());
 });
+
+test('deleting account removes business profile logo from local disk', function () {
+    \Illuminate\Support\Facades\Storage::fake('local');
+
+    $user = User::factory()->withBusinessProfile()->create();
+    $logoPath = 'logos/user-logo.png';
+    \Illuminate\Support\Facades\Storage::disk('local')->put($logoPath, 'fake-image-content');
+    $user->businessProfile->update(['logo_path' => $logoPath]);
+
+    \Illuminate\Support\Facades\Storage::disk('local')->assertExists($logoPath);
+
+    $this->actingAs($user)
+        ->delete('/profile', ['password' => 'password'])
+        ->assertRedirect('/');
+
+    \Illuminate\Support\Facades\Storage::disk('local')->assertMissing($logoPath);
+});

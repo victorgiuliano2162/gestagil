@@ -54,7 +54,10 @@ class ReportController extends Controller
 
         $byCategory = Transaction::where('transactions.user_id', $userId)
             ->whereBetween('transactions.occurred_on', [$startDate, $endDate])
-            ->leftJoin('transaction_categories', 'transactions.category_id', '=', 'transaction_categories.id')
+            ->leftJoin('transaction_categories', function ($join) use ($userId) {
+                $join->on('transactions.category_id', '=', 'transaction_categories.id')
+                    ->where('transaction_categories.user_id', $userId);
+            })
             ->select(
                 'transactions.type',
                 DB::raw('COALESCE(transaction_categories.name, "Sem Categoria") as category_name'),

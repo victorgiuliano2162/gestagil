@@ -148,6 +148,10 @@ class AppointmentController extends Controller
 
     public function destroy(Appointment $appointment): RedirectResponse
     {
+        if ($appointment->transactions()->exists()) {
+            return back()->with('error', 'Não é possível excluir um atendimento que possui lançamentos vinculados.');
+        }
+
         $appointment->delete();
 
         return redirect()->route('appointments.index')

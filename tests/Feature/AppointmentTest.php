@@ -73,3 +73,70 @@ test('user cannot view or modify appointments of another user (tenant isolation)
         'status' => 'completed',
     ])->assertNotFound();
 });
+
+test('appointment cannot reference client belonging to another user', function () {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    $clientA = Client::create([
+        'user_id' => $userA->id,
+        'name' => 'Cliente do User A',
+    ]);
+
+    $response = $this->actingAs($userB)->post(route('appointments.store'), [
+        'client_id' => $clientA->id,
+        'service_description' => 'Tentativa cross-tenant',
+        'service_at' => now()->addDay()->format('Y-m-d H:i:s'),
+    ]);
+
+    $response->assertSessionHasErrors(['client_id']);
+    expect(Appointment::withoutGlobalScopes()->where('user_id', $userB->id)->count())->toBe(0);
+});
+
+test('cannot delete appointment with linked transactions', function () {
+    $user = User::factory()->create();
+    $client = Client::create([
+        'user_id' => $user->id,
+        'name' => 'Cliente Teste',
+    ]);
+
+    $apptWithTx = Appointment::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'service_description' => 'Com lançamento',
+        'service_at' => now(),
+    ]);
+
+    \App\Models\Transaction::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'appointment_id' => $apptWithTx->id,
+        'type' => 'income',
+        'amount_cents' => 10000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Pagamento',
+    ]);
+
+    $this->actingAs($user)
+        ->delete(route('appointments.destroy', $apptWithTx))
+        ->assertSessionHas('error');
+
+    $this->assertDatabaseHas('appointments', [
+        'id' => $apptWithTx->id,
+        'deleted_at' => null,
+    ]);
+
+    $apptWithoutTx = Appointment::create([
+        'user_id' => $user->id,
+        'client_id' => $client->id,
+        'service_description' => 'Sem lançamento',
+        'service_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->delete(route('appointments.destroy', $apptWithoutTx))
+        ->assertRedirect(route('appointments.index'))
+        ->assertSessionHas('success');
+
+    $this->assertSoftDeleted('appointments', ['id' => $apptWithoutTx->id]);
+});

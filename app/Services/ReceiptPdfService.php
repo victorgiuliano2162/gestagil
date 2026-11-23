@@ -14,9 +14,9 @@ class ReceiptPdfService
         $logoBase64 = null;
         $logoPath = $receipt->issuer_snapshot['logo_path'] ?? null;
 
-        if ($logoPath && Storage::disk('public')->exists($logoPath)) {
-            $mimeType = Storage::disk('public')->mimeType($logoPath) ?: 'image/png';
-            $content = Storage::disk('public')->get($logoPath);
+        if ($logoPath && Storage::disk('local')->exists($logoPath)) {
+            $mimeType = Storage::disk('local')->mimeType($logoPath) ?: 'image/png';
+            $content = Storage::disk('local')->get($logoPath);
             $logoBase64 = 'data:' . $mimeType . ';base64,' . base64_encode($content);
         }
 

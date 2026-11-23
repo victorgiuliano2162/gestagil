@@ -320,3 +320,71 @@ test('receipt can be delivered via email with PDF attached', function () {
                ! empty($mail->pdfBinary);
     });
 });
+
+test('cannot issue receipt for transaction belonging to another user', function () {
+    $userA = User::factory()->withDefaultCategories()->create();
+    $userB = User::factory()->withDefaultCategories()->create();
+
+    $transA = Transaction::create([
+        'user_id' => $userA->id,
+        'type' => 'income',
+        'amount_cents' => 15000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Receita de A',
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+
+    $response = $this->actingAs($userB)->post(route('receipts.store'), [
+        'transaction_id' => $transA->id,
+        'payer_name' => 'Atacante B',
+        'description' => 'Tentativa cross-tenant',
+        'payment_method' => 'pix',
+    ]);
+
+    $response->assertSessionHasErrors(['transaction_id']);
+    expect(Receipt::withoutGlobalScopes()->where('user_id', $userB->id)->count())->toBe(0);
+});
+
+test('receipt pdf service embeds logo from local disk and handles missing logo gracefully', function () {
+    \Illuminate\Support\Facades\Storage::fake('local');
+
+    $user = User::factory()->create();
+    $logoPath = 'logos/test-logo.png';
+    \Illuminate\Support\Facades\Storage::disk('local')->put($logoPath, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='));
+
+    $tx = Transaction::create([
+        'user_id' => $user->id,
+        'type' => 'income',
+        'amount_cents' => 10000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Serviço com Logo',
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+
+    $receipt = Receipt::create([
+        'user_id' => $user->id,
+        'transaction_id' => $tx->id,
+        'code' => \Illuminate\Support\Str::uuid()->toString(),
+        'year' => (int) now()->format('Y'),
+        'number' => 1,
+        'status' => 'issued',
+        'issued_at' => now(),
+        'amount_cents' => 10000,
+        'payment_method' => 'pix',
+        'description' => 'Serviço com Logo',
+        'payer_name' => 'Cliente Teste',
+        'issuer_snapshot' => [
+            'display_name' => 'Empresa Teste',
+            'logo_path' => $logoPath,
+        ],
+    ]);
+
+    $service = app(\App\Services\ReceiptPdfService::class);
+    $pdf = $service->render($receipt);
+    expect($pdf->output())->not->toBeEmpty();
+
+    // Missing logo file must not throw
+    $receipt->update(['issuer_snapshot' => ['display_name' => 'Empresa Teste', 'logo_path' => 'logos/non-existent.png']]);
+    $pdfMissing = $service->render($receipt->fresh());
+    expect($pdfMissing->output())->not->toBeEmpty();
+});

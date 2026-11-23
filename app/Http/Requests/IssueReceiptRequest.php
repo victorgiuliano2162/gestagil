@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class IssueReceiptRequest extends FormRequest
 {
@@ -14,7 +15,13 @@ class IssueReceiptRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'transaction_id' => ['required', 'integer', 'exists:transactions,id'],
+            'transaction_id' => [
+                'required',
+                'integer',
+                Rule::exists('transactions', 'id')
+                    ->where('user_id', $this->user()->id)
+                    ->whereNull('deleted_at'),
+            ],
             'payer_name' => ['required', 'string', 'max:150'],
             'payer_document' => ['nullable', 'string', 'max:20'],
             'description' => ['required', 'string', 'max:500'],

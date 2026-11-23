@@ -197,3 +197,65 @@ test('appointment show page includes linked transactions and active receipts', f
             ->where('transactions.0.active_receipt.id', $receipt->id)
         );
 });
+
+test('quick client creation, client show history and appointment filters work', function () {
+    $user = User::factory()->withDefaultCategories()->create();
+
+    // Quick store JSON
+    $quickRes = $this->actingAs($user)->postJson(route('clients.quick-store'), [
+        'name' => 'Cliente Rápido',
+        'phone' => '(81) 99999-1234',
+    ]);
+    $quickRes->assertCreated()->assertJsonPath('client.name', 'Cliente Rápido');
+    $clientId = $quickRes->json('client.id');
+
+    $otherClient = Client::create(['user_id' => $user->id, 'name' => 'Outro Cliente']);
+
+    Appointment::create([
+        'user_id' => $user->id,
+        'client_id' => $clientId,
+        'service_description' => 'Serviço do Rápido',
+        'service_at' => now(),
+        'status' => AppointmentStatus::Completed,
+    ]);
+
+    Appointment::create([
+        'user_id' => $user->id,
+        'client_id' => $otherClient->id,
+        'service_description' => 'Serviço Antigo',
+        'service_at' => now()->subDays(10),
+        'status' => AppointmentStatus::InProgress,
+    ]);
+
+    Transaction::create([
+        'user_id' => $user->id,
+        'client_id' => $clientId,
+        'type' => 'income',
+        'amount_cents' => 35000,
+        'occurred_on' => now()->toDateString(),
+        'description' => 'Pagamento Rápido',
+        'payment_method' => PaymentMethod::Pix,
+    ]);
+
+    // Client show includes history and total spent
+    $this->actingAs($user)->get(route('clients.show', $clientId))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Clients/Show')
+            ->where('stats.total_spent_cents', 35000)
+            ->where('stats.appointments_count', 1)
+            ->has('appointments', 1)
+            ->has('transactions', 1)
+        );
+
+    // Appointment filters by client_id and date range
+    $this->actingAs($user)->get(route('appointments.index', [
+        'client_id' => $clientId,
+        'date_from' => now()->subDay()->toDateString(),
+        'date_to' => now()->addDay()->toDateString(),
+    ]))->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->has('appointments.data', 1)
+            ->where('appointments.data.0.service_description', 'Serviço do Rápido')
+        );
+});

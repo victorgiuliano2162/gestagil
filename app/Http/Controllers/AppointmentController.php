@@ -17,12 +17,18 @@ class AppointmentController extends Controller
     {
         $status = $request->input('status');
         $search = $request->input('search');
+        $clientId = $request->integer('client_id') ?: null;
+        $dateFrom = $request->input('date_from') ?: null;
+        $dateTo = $request->input('date_to') ?: null;
 
         $appointments = Appointment::query()
             ->with('client:id,name,phone_e164')
             ->when($status, function ($query, $status) {
                 $query->where('status', $status);
             })
+            ->when($clientId, fn ($q, $c) => $q->where('client_id', $c))
+            ->when($dateFrom, fn ($q, $df) => $q->whereDate('service_at', '>=', $df))
+            ->when($dateTo, fn ($q, $dt) => $q->whereDate('service_at', '<=', $dt))
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('service_description', 'like', "%{$search}%")
@@ -37,9 +43,13 @@ class AppointmentController extends Controller
 
         return Inertia::render('Appointments/Index', [
             'appointments' => $appointments,
+            'clients' => Client::orderBy('name')->get(['id', 'name']),
             'filters' => [
                 'status' => $status,
                 'search' => $search,
+                'client_id' => $clientId,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
             ],
             'statuses' => collect(AppointmentStatus::cases())->map(fn ($s) => [
                 'value' => $s->value,

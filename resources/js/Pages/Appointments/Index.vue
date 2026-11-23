@@ -35,19 +35,35 @@ interface StatusOption {
 
 const props = defineProps<{
     appointments: PaginatedAppointments;
-    filters: { status?: string; search?: string };
+    clients: { id: number; name: string }[];
+    filters: {
+        status?: string;
+        search?: string;
+        client_id?: number | null;
+        date_from?: string | null;
+        date_to?: string | null;
+    };
     statuses: StatusOption[];
 }>();
 
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
+const clientId = ref(props.filters.client_id ? String(props.filters.client_id) : '');
+const dateFrom = ref(props.filters.date_from || '');
+const dateTo = ref(props.filters.date_to || '');
 
 let debounceTimeout: ReturnType<typeof setTimeout>;
 
 const applyFilters = () => {
     router.get(
         route('appointments.index'),
-        { search: search.value || undefined, status: status.value || undefined },
+        {
+            search: search.value || undefined,
+            status: status.value || undefined,
+            client_id: clientId.value || undefined,
+            date_from: dateFrom.value || undefined,
+            date_to: dateTo.value || undefined,
+        },
         { preserveState: true, replace: true }
     );
 };
@@ -107,15 +123,40 @@ const getStatusBadge = (s: string) => {
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="bg-white p-6 shadow sm:rounded-lg">
                     <!-- Filtros -->
-                    <div class="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
-                        <div class="w-full sm:w-80">
-                            <input
-                                v-model="search"
-                                type="text"
-                                placeholder="Buscar por serviço ou cliente..."
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            />
-                        </div>
+                    <div class="mb-6 flex flex-col gap-4">
+                        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                            <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                                <input
+                                    v-model="search"
+                                    type="text"
+                                    placeholder="Buscar por serviço ou cliente..."
+                                    class="w-full sm:w-64 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                                <select
+                                    v-model="clientId"
+                                    @change="applyFilters"
+                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                >
+                                    <option value="">Todos os clientes</option>
+                                    <option v-for="c in clients" :key="c.id" :value="String(c.id)">
+                                        {{ c.name }}
+                                    </option>
+                                </select>
+                                <input
+                                    v-model="dateFrom"
+                                    type="date"
+                                    @change="applyFilters"
+                                    title="Data inicial"
+                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                                <input
+                                    v-model="dateTo"
+                                    type="date"
+                                    @change="applyFilters"
+                                    title="Data final"
+                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                />
+                            </div>
 
                         <!-- Abas / Filtro de Status -->
                         <div class="flex items-center space-x-2 w-full sm:w-auto">
@@ -135,6 +176,7 @@ const getStatusBadge = (s: string) => {
                             >
                                 {{ s.label }}
                             </button>
+                        </div>
                         </div>
                     </div>
 

@@ -96,11 +96,11 @@ const formatDateOnly = (iso: string) => {
 const getStatusBadge = (s: string) => {
     switch (s) {
         case 'completed':
-            return { label: 'Concluído', bg: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+            return { label: 'Concluído', bg: 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800' };
         case 'canceled':
-            return { label: 'Cancelado', bg: 'bg-rose-100 text-rose-800 border-rose-200' };
+            return { label: 'Cancelado', bg: 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800' };
         default:
-            return { label: 'Em Andamento', bg: 'bg-amber-100 text-amber-800 border-amber-200' };
+            return { label: 'Em Andamento', bg: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-800' };
     }
 };
 </script>
@@ -113,7 +113,7 @@ const getStatusBadge = (s: string) => {
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <div class="flex items-center space-x-3">
-                        <h2 class="text-xl font-bold leading-tight text-gray-900">
+                        <h2 class="text-xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                             Atendimento #{{ appointment.id }}
                         </h2>
                         <span
@@ -123,7 +123,7 @@ const getStatusBadge = (s: string) => {
                             {{ getStatusBadge(appointment.status).label }}
                         </span>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Agendado para {{ new Date(appointment.service_at).toLocaleString('pt-BR', { dateStyle: 'long', timeStyle: 'short' }) }}
                     </p>
                 </div>
@@ -131,7 +131,7 @@ const getStatusBadge = (s: string) => {
                 <div class="flex flex-wrap items-center gap-2">
                     <Link
                         :href="route('appointments.index')"
-                        class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                        class="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800/60"
                     >
                         &larr; Voltar
                     </Link>
@@ -148,14 +148,14 @@ const getStatusBadge = (s: string) => {
                     <template v-if="appointment.status === 'in_progress'">
                         <Link
                             :href="route('appointments.edit', appointment.id)"
-                            class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                            class="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800/60"
                         >
                             Editar
                         </Link>
 
                         <button
                             @click="openCancelModal"
-                            class="rounded-md bg-white border border-rose-300 px-3 py-2 text-sm font-semibold text-rose-700 shadow-sm hover:bg-rose-50"
+                            class="rounded-md bg-white dark:bg-gray-900 border border-rose-300 dark:border-rose-800 px-3 py-2 text-sm font-semibold text-rose-700 dark:text-rose-300 shadow-sm hover:bg-rose-50 dark:hover:bg-rose-950/50"
                         >
                             Cancelar
                         </button>
@@ -175,27 +175,27 @@ const getStatusBadge = (s: string) => {
         <div class="py-12">
             <div class="mx-auto max-w-5xl sm:px-6 lg:px-8 space-y-6">
                 <!-- Informações do Cliente -->
-                <div class="bg-white p-6 shadow sm:rounded-lg">
-                    <h3 class="text-base font-semibold text-gray-900 border-b pb-3 mb-4 flex items-center justify-between">
+                <div class="bg-white dark:bg-gray-900 p-6 shadow sm:rounded-lg">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-800 pb-3 mb-4 flex items-center justify-between">
                         <span>Dados do Cliente</span>
-                        <Link :href="route('clients.show', appointment.client.id)" class="text-xs text-indigo-600 hover:underline">
+                        <Link :href="route('clients.show', appointment.client.id)" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
                             Ver ficha completa &rarr;
                         </Link>
                     </h3>
 
                     <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-3">
                         <div>
-                            <dt class="text-xs font-medium text-gray-500">Nome</dt>
-                            <dd class="mt-1 text-sm font-semibold text-gray-900">{{ appointment.client.name }}</dd>
+                            <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Nome</dt>
+                            <dd class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">{{ appointment.client.name }}</dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-gray-500">Telefone / WhatsApp</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
+                            <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Telefone / WhatsApp</dt>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
                                 <a
                                     v-if="appointment.client.phone_e164"
                                     :href="`https://wa.me/${appointment.client.phone_e164.replace(/\D/g, '')}`"
                                     target="_blank"
-                                    class="text-indigo-600 underline font-medium"
+                                    class="text-indigo-600 dark:text-indigo-400 underline font-medium"
                                 >
                                     {{ maskPhone(appointment.client.phone_e164) }} (Conversar)
                                 </a>
@@ -203,34 +203,34 @@ const getStatusBadge = (s: string) => {
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium text-gray-500">Valor Previsto</dt>
-                            <dd class="mt-1 text-sm font-bold text-gray-900">{{ formatCurrency(appointment.expected_amount_cents) }}</dd>
+                            <dt class="text-xs font-medium text-gray-500 dark:text-gray-400">Valor Previsto</dt>
+                            <dd class="mt-1 text-sm font-bold text-gray-900 dark:text-gray-100">{{ formatCurrency(appointment.expected_amount_cents) }}</dd>
                         </div>
                     </dl>
                 </div>
 
                 <!-- Detalhes do Serviço -->
-                <div class="bg-white p-6 shadow sm:rounded-lg space-y-4">
-                    <h3 class="text-base font-semibold text-gray-900 border-b pb-3">
+                <div class="bg-white dark:bg-gray-900 p-6 shadow sm:rounded-lg space-y-4">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-800 pb-3">
                         Descrição do Serviço
                     </h3>
-                    <p class="text-sm text-gray-800 whitespace-pre-line bg-gray-50 p-4 rounded-md border">
+                    <p class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-line bg-gray-50 dark:bg-gray-800/60 p-4 rounded-md border border-gray-200 dark:border-gray-800">
                         {{ appointment.service_description }}
                     </p>
 
                     <div v-if="appointment.technical_notes" class="pt-2">
-                        <h4 class="text-xs font-semibold text-gray-700 mb-1">Notas Técnicas e Internas:</h4>
-                        <p class="text-sm text-gray-600 whitespace-pre-line bg-amber-50/50 p-3 rounded-md border border-amber-100">
+                        <h4 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Notas Técnicas e Internas:</h4>
+                        <p class="text-sm text-gray-600 dark:text-amber-200 whitespace-pre-line bg-amber-50/50 dark:bg-amber-950/50 p-3 rounded-md border border-amber-100 dark:border-amber-800">
                             {{ appointment.technical_notes }}
                         </p>
                     </div>
 
                     <!-- Dados de Conclusão / Cancelamento -->
-                    <div v-if="appointment.status === 'completed'" class="p-4 rounded-md bg-emerald-50 border border-emerald-200 text-sm text-emerald-800">
+                    <div v-if="appointment.status === 'completed'" class="p-4 rounded-md bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-sm text-emerald-800 dark:text-emerald-300">
                         ✓ Atendimento concluído em {{ new Date(appointment.completed_at!).toLocaleString('pt-BR') }}.
                     </div>
 
-                    <div v-if="appointment.status === 'canceled'" class="p-4 rounded-md bg-rose-50 border border-rose-200 text-sm text-rose-800">
+                    <div v-if="appointment.status === 'canceled'" class="p-4 rounded-md bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-sm text-rose-800 dark:text-rose-300">
                         <p class="font-semibold">✕ Atendimento cancelado em {{ new Date(appointment.canceled_at!).toLocaleString('pt-BR') }}.</p>
                         <p v-if="appointment.cancel_reason" class="mt-1 text-xs">
                             Motivo informado: {{ appointment.cancel_reason }}
@@ -239,33 +239,33 @@ const getStatusBadge = (s: string) => {
                 </div>
 
                 <!-- Lançamentos e Recibos Vinculados (RF-ATD-07) -->
-                <div class="bg-white p-6 shadow sm:rounded-lg space-y-4">
-                    <div class="flex items-center justify-between border-b pb-3">
-                        <h3 class="text-base font-semibold text-gray-900">
+                <div class="bg-white dark:bg-gray-900 p-6 shadow sm:rounded-lg space-y-4">
+                    <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-3">
+                        <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">
                             Lançamentos e Recibos Vinculados
                         </h3>
                         <Link
                             v-if="appointment.status !== 'canceled'"
                             :href="route('transactions.create', { type: 'income', appointment_id: appointment.id })"
-                            class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                            class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
                         >
                             + Registrar Recebimento
                         </Link>
                     </div>
 
-                    <div v-if="transactions.length === 0" class="text-sm text-gray-500 py-4 text-center">
+                    <div v-if="transactions.length === 0" class="text-sm text-gray-500 dark:text-gray-400 py-4 text-center">
                         Nenhum lançamento financeiro vinculado a este atendimento ainda.
                     </div>
 
-                    <div v-else class="divide-y divide-gray-200">
+                    <div v-else class="divide-y divide-gray-200 dark:divide-gray-800">
                         <div
                             v-for="t in transactions"
                             :key="t.id"
                             class="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
                         >
                             <div>
-                                <p class="text-sm font-semibold text-gray-900">{{ t.description }}</p>
-                                <p class="text-xs text-gray-500">
+                                <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ t.description }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
                                     {{ formatDateOnly(t.occurred_on) }} · {{ t.payment_method_label }}
                                     <span v-if="t.category"> · {{ t.category.name }}</span>
                                 </p>
@@ -273,21 +273,21 @@ const getStatusBadge = (s: string) => {
                             <div class="flex items-center space-x-3">
                                 <span
                                     class="text-sm font-bold"
-                                    :class="t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'"
+                                    :class="t.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'"
                                 >
                                     {{ t.type === 'income' ? '+' : '-' }} {{ formatCurrency(t.amount_cents) }}
                                 </span>
                                 <Link
                                     v-if="t.active_receipt"
                                     :href="route('receipts.show', t.active_receipt.id)"
-                                    class="rounded bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+                                    class="rounded bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-950/80"
                                 >
                                     Recibo {{ t.active_receipt.formatted_number }}
                                 </Link>
                                 <Link
                                     v-else-if="t.type === 'income'"
                                     :href="route('receipts.create', { transaction_id: t.id })"
-                                    class="rounded bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
+                                    class="rounded bg-indigo-50 dark:bg-indigo-950/50 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-950/80"
                                 >
                                     Emitir Recibo
                                 </Link>
@@ -299,10 +299,10 @@ const getStatusBadge = (s: string) => {
                 <!-- Modal de Cancelamento -->
                 <Modal :show="confirmingCancel" @close="closeCancelModal">
                     <div class="p-6">
-                        <h3 class="text-lg font-bold text-gray-900">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
                             Cancelar Atendimento
                         </h3>
-                        <p class="mt-1 text-sm text-gray-600">
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
                             Informe o motivo do cancelamento para registro histórico do atendimento.
                         </p>
 
@@ -310,7 +310,7 @@ const getStatusBadge = (s: string) => {
                             <textarea
                                 v-model="cancelForm.cancel_reason"
                                 rows="3"
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                 placeholder="Ex: Cliente desistiu, falta de peças no fornecedor, remarcação..."
                                 required
                             ></textarea>

@@ -129,10 +129,10 @@ const maxAnnualAmount = () => {
         <template #header>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="text-xl font-bold leading-tight text-gray-900">
+                    <h2 class="text-xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                         Relatórios e Indicadores Comerciais
                     </h2>
-                    <p class="text-sm text-gray-500 mt-0.5">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                         Acompanhe o faturamento, atendimentos, melhores clientes e desempenho anual
                     </p>
                 </div>
@@ -143,7 +143,7 @@ const maxAnnualAmount = () => {
                         <select
                             v-model="selectedYear"
                             @change="applyDateFilter"
-                            class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
                         >
                             <option v-for="y in availableYears" :key="y" :value="y">Ano {{ y }}</option>
                         </select>
@@ -152,13 +152,13 @@ const maxAnnualAmount = () => {
                         <input
                             v-model="startDate"
                             type="date"
-                            class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
                         />
                         <span class="text-gray-400 text-xs">até</span>
                         <input
                             v-model="endDate"
                             type="date"
-                            class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"
                         />
                         <button
                             @click="applyDateFilter"
@@ -174,33 +174,33 @@ const maxAnnualAmount = () => {
         <div class="py-8">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-6">
                 <!-- Abas de Navegação do Relatório -->
-                <div class="border-b border-gray-200">
+                <div class="border-b border-gray-200 dark:border-gray-800">
                     <nav class="-mb-px flex space-x-6">
                         <button
                             @click="switchTab('faturamento')"
                             class="whitespace-nowrap py-3 px-1 border-b-2 font-semibold text-sm transition"
-                            :class="activeTab === 'faturamento' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                            :class="activeTab === 'faturamento' ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-700'"
                         >
                             💰 Faturamento & Caixa
                         </button>
                         <button
                             @click="switchTab('atendimentos')"
                             class="whitespace-nowrap py-3 px-1 border-b-2 font-semibold text-sm transition"
-                            :class="activeTab === 'atendimentos' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                            :class="activeTab === 'atendimentos' ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-700'"
                         >
                             📅 Atendimentos & Serviços
                         </button>
                         <button
                             @click="switchTab('clientes')"
                             class="whitespace-nowrap py-3 px-1 border-b-2 font-semibold text-sm transition"
-                            :class="activeTab === 'clientes' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                            :class="activeTab === 'clientes' ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-700'"
                         >
                             👥 Melhores Clientes
                         </button>
                         <button
                             @click="switchTab('anual')"
                             class="whitespace-nowrap py-3 px-1 border-b-2 font-semibold text-sm transition"
-                            :class="activeTab === 'anual' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                            :class="activeTab === 'anual' ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-700'"
                         >
                             📊 Comparativo Anual
                         </button>
@@ -210,26 +210,26 @@ const maxAnnualAmount = () => {
                 <!-- ABA 1: FATURAMENTO & CAIXA -->
                 <div v-if="activeTab === 'faturamento'" class="space-y-6">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <span class="text-xs font-semibold text-emerald-700 uppercase">Receita Bruta (Entradas)</span>
-                            <div class="text-2xl font-black text-emerald-600 mt-1">
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase">Receita Bruta (Entradas)</span>
+                            <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
                                 {{ formatCurrency((report as RevenueData).income_cents) }}
                             </div>
                             <span class="text-xs text-gray-400">Total recebido no período</span>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <span class="text-xs font-semibold text-rose-700 uppercase">Despesas Operacionais</span>
-                            <div class="text-2xl font-black text-rose-600 mt-1">
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <span class="text-xs font-semibold text-rose-700 dark:text-rose-300 uppercase">Despesas Operacionais</span>
+                            <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">
                                 {{ formatCurrency((report as RevenueData).expense_cents) }}
                             </div>
                             <span class="text-xs text-gray-400">Custos e compras no período</span>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <span class="text-xs font-semibold text-indigo-700 uppercase">Resultado Líquido</span>
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-300 uppercase">Resultado Líquido</span>
                             <div class="text-2xl font-black mt-1"
-                                :class="(report as RevenueData).net_cents >= 0 ? 'text-indigo-600' : 'text-rose-600'">
+                                :class="(report as RevenueData).net_cents >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'">
                                 {{ formatCurrency((report as RevenueData).net_cents) }}
                             </div>
                             <span class="text-xs text-gray-400">Lucro apurado</span>
@@ -238,21 +238,21 @@ const maxAnnualAmount = () => {
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <!-- Distribuição por Categoria -->
-                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <h3 class="text-base font-semibold text-gray-900 border-b pb-4 mb-4">
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-800 pb-4 mb-4">
                                 Lançamentos por Categoria
                             </h3>
-                            <div v-if="(report as RevenueData).by_category.length === 0" class="text-center py-8 text-sm text-gray-500">
+                            <div v-if="(report as RevenueData).by_category.length === 0" class="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
                                 Nenhum lançamento no período filtrado.
                             </div>
                             <div v-else class="space-y-3">
-                                <div v-for="(cat, idx) in (report as RevenueData).by_category" :key="idx" class="flex items-center justify-between p-2 rounded hover:bg-gray-50 text-sm">
+                                <div v-for="(cat, idx) in (report as RevenueData).by_category" :key="idx" class="flex items-center justify-between p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800/60 text-sm">
                                     <div class="flex items-center space-x-2">
                                         <span class="h-2.5 w-2.5 rounded-full" :class="cat.type === 'income' ? 'bg-emerald-500' : 'bg-rose-500'"></span>
-                                        <span class="font-medium text-gray-800">{{ cat.category_name }}</span>
+                                        <span class="font-medium text-gray-800 dark:text-gray-100">{{ cat.category_name }}</span>
                                         <span class="text-xs text-gray-400">({{ cat.count }})</span>
                                     </div>
-                                    <span class="font-bold" :class="cat.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">
+                                    <span class="font-bold" :class="cat.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
                                         {{ formatCurrency(cat.total_cents) }}
                                     </span>
                                 </div>
@@ -260,22 +260,22 @@ const maxAnnualAmount = () => {
                         </div>
 
                         <!-- Entradas por Meio de Pagamento -->
-                        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                            <h3 class="text-base font-semibold text-gray-900 border-b pb-4 mb-4">
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-800 pb-4 mb-4">
                                 Recebimentos por Forma de Pagamento
                             </h3>
-                            <div v-if="(report as RevenueData).by_payment_method.length === 0" class="text-center py-8 text-sm text-gray-500">
+                            <div v-if="(report as RevenueData).by_payment_method.length === 0" class="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
                                 Nenhum recebimento no período filtrado.
                             </div>
                             <div v-else class="space-y-3">
-                                <div v-for="(m, idx) in (report as RevenueData).by_payment_method" :key="idx" class="flex items-center justify-between p-2 rounded hover:bg-gray-50 text-sm">
+                                <div v-for="(m, idx) in (report as RevenueData).by_payment_method" :key="idx" class="flex items-center justify-between p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800/60 text-sm">
                                     <div class="flex items-center space-x-2">
-                                        <span class="font-bold text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                        <span class="font-bold text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                             {{ formatPaymentMethod(m.payment_method) }}
                                         </span>
                                         <span class="text-xs text-gray-400">({{ m.count }} recebimentos)</span>
                                     </div>
-                                    <span class="font-bold text-emerald-600">
+                                    <span class="font-bold text-emerald-600 dark:text-emerald-400">
                                         {{ formatCurrency(m.total_cents) }}
                                     </span>
                                 </div>
@@ -287,45 +287,45 @@ const maxAnnualAmount = () => {
                 <!-- ABA 2: ATENDIMENTOS & SERVIÇOS -->
                 <div v-else-if="activeTab === 'atendimentos'" class="space-y-6">
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-5">
-                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <span class="text-xs font-semibold text-gray-500 uppercase">Total Atendimentos</span>
-                            <div class="text-3xl font-black text-indigo-600 mt-1">
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Total Atendimentos</span>
+                            <div class="text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">
                                 {{ (report as AppointmentsData).total_appointments }}
                             </div>
                             <span class="text-xs text-gray-400">Ordens cadastradas</span>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <span class="text-xs font-semibold text-emerald-700 uppercase">Concluídos</span>
-                            <div class="text-3xl font-black text-emerald-600 mt-1">
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase">Concluídos</span>
+                            <div class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
                                 {{ (report as AppointmentsData).completed_count }}
                             </div>
                             <span class="text-xs text-gray-400">Serviços entregues</span>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <span class="text-xs font-semibold text-amber-700 uppercase">Em Andamento</span>
-                            <div class="text-3xl font-black text-amber-600 mt-1">
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <span class="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase">Em Andamento</span>
+                            <div class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
                                 {{ (report as AppointmentsData).in_progress_count }}
                             </div>
                             <span class="text-xs text-gray-400">Em execução na loja</span>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <span class="text-xs font-semibold text-rose-700 uppercase">Cancelados</span>
-                            <div class="text-3xl font-black text-rose-600 mt-1">
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <span class="text-xs font-semibold text-rose-700 dark:text-rose-300 uppercase">Cancelados</span>
+                            <div class="text-3xl font-black text-rose-600 dark:text-rose-400 mt-1">
                                 {{ (report as AppointmentsData).canceled_count }}
                             </div>
                             <span class="text-xs text-gray-400">Ordens canceladas</span>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                    <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex items-center justify-between">
                         <div>
-                            <h4 class="text-sm font-semibold text-gray-900">Volume Total de Atendimentos Orçado</h4>
-                            <p class="text-xs text-gray-500">Soma dos valores previstos dos serviços no período</p>
+                            <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Volume Total de Atendimentos Orçado</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Soma dos valores previstos dos serviços no período</p>
                         </div>
-                        <div class="text-2xl font-black text-indigo-600">
+                        <div class="text-2xl font-black text-indigo-600 dark:text-indigo-400">
                             {{ formatCurrency((report as AppointmentsData).expected_total_cents) }}
                         </div>
                     </div>
@@ -333,19 +333,19 @@ const maxAnnualAmount = () => {
 
                 <!-- ABA 3: MELHORES CLIENTES -->
                 <div v-else-if="activeTab === 'clientes'" class="space-y-6">
-                    <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
-                        <div class="p-6 border-b border-gray-100">
-                            <h3 class="text-base font-semibold text-gray-900">Ranking Top 10 Clientes por Faturamento</h3>
-                            <p class="text-xs text-gray-500 mt-0.5">Identifique os clientes mais lucrativos e frequentes da sua loja</p>
+                    <div class="bg-white dark:bg-gray-900 shadow-sm rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+                        <div class="p-6 border-b border-gray-100 dark:border-gray-800">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">Ranking Top 10 Clientes por Faturamento</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Identifique os clientes mais lucrativos e frequentes da sua loja</p>
                         </div>
 
-                        <div v-if="(report as ClientsData).top_clients.length === 0" class="p-12 text-center text-sm text-gray-500">
+                        <div v-if="(report as ClientsData).top_clients.length === 0" class="p-12 text-center text-sm text-gray-500 dark:text-gray-400">
                             Nenhuma movimentação vinculada a clientes no período.
                         </div>
 
                         <div v-else class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
-                                <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 text-left text-sm">
+                                <thead class="bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 uppercase text-xs">
                                     <tr>
                                         <th class="px-6 py-3 font-semibold">Posição</th>
                                         <th class="px-6 py-3 font-semibold">Cliente</th>
@@ -354,26 +354,26 @@ const maxAnnualAmount = () => {
                                         <th class="px-6 py-3 font-semibold text-right">Total Comprado</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200">
-                                    <tr v-for="(client, index) in (report as ClientsData).top_clients" :key="client.id" class="hover:bg-gray-50">
-                                        <td class="px-6 py-4 font-bold text-gray-500 whitespace-nowrap">
+                                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                                    <tr v-for="(client, index) in (report as ClientsData).top_clients" :key="client.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                                        <td class="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 whitespace-nowrap">
                                             <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs"
-                                                :class="index === 0 ? 'bg-amber-100 text-amber-800 font-black' : 'bg-gray-100 text-gray-700'">
+                                                :class="index === 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 font-black' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'">
                                                 {{ index + 1 }}º
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 font-semibold text-gray-900 whitespace-nowrap">
-                                            <Link :href="route('clients.show', client.id)" class="hover:text-indigo-600">
+                                        <td class="px-6 py-4 font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                                            <Link :href="route('clients.show', client.id)" class="hover:text-indigo-600 dark:hover:text-indigo-400">
                                                 {{ client.name }}
                                             </Link>
                                         </td>
-                                        <td class="px-6 py-4 text-gray-500 whitespace-nowrap">
+                                        <td class="px-6 py-4 text-gray-500 dark:text-gray-400 whitespace-nowrap">
                                             {{ client.phone_e164 ? maskPhone(client.phone_e164) : '-' }}
                                         </td>
-                                        <td class="px-6 py-4 text-center font-bold text-gray-700 whitespace-nowrap">
+                                        <td class="px-6 py-4 text-center font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap">
                                             {{ client.transactions_count }}
                                         </td>
-                                        <td class="px-6 py-4 text-right font-black text-emerald-600 whitespace-nowrap">
+                                        <td class="px-6 py-4 text-right font-black text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
                                             {{ formatCurrency(client.total_revenue_cents) }}
                                         </td>
                                     </tr>
@@ -386,35 +386,35 @@ const maxAnnualAmount = () => {
                 <!-- ABA 4: COMPARATIVO ANUAL -->
                 <div v-else-if="activeTab === 'anual'" class="space-y-6">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <span class="text-xs font-semibold text-emerald-700 uppercase">Receita Acumulada no Ano</span>
-                            <div class="text-2xl font-black text-emerald-600 mt-1">
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-300 uppercase">Receita Acumulada no Ano</span>
+                            <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
                                 {{ formatCurrency((report as AnnualData).total_income_cents) }}
                             </div>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <span class="text-xs font-semibold text-rose-700 uppercase">Despesas Acumuladas no Ano</span>
-                            <div class="text-2xl font-black text-rose-600 mt-1">
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <span class="text-xs font-semibold text-rose-700 dark:text-rose-300 uppercase">Despesas Acumuladas no Ano</span>
+                            <div class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">
                                 {{ formatCurrency((report as AnnualData).total_expense_cents) }}
                             </div>
                         </div>
 
-                        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                            <span class="text-xs font-semibold text-indigo-700 uppercase">Resultado Anual Líquido</span>
+                        <div class="bg-white dark:bg-gray-900 p-6 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                            <span class="text-xs font-semibold text-indigo-700 dark:text-indigo-300 uppercase">Resultado Anual Líquido</span>
                             <div class="text-2xl font-black mt-1"
-                                :class="(report as AnnualData).total_net_cents >= 0 ? 'text-indigo-600' : 'text-rose-600'">
+                                :class="(report as AnnualData).total_net_cents >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'">
                                 {{ formatCurrency((report as AnnualData).total_net_cents) }}
                             </div>
                         </div>
                     </div>
 
                     <!-- Gráfico Visual de Barras SVG -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <h3 class="text-base font-semibold text-gray-900 border-b pb-4 mb-4">
+                    <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                        <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-800 pb-4 mb-4">
                             Evolução Mês a Mês ({{ (report as AnnualData).year }})
                         </h3>
-                        <div class="grid grid-cols-12 gap-2 pt-8 pb-4 items-end h-64 border-b border-gray-100">
+                        <div class="grid grid-cols-12 gap-2 pt-8 pb-4 items-end h-64 border-b border-gray-100 dark:border-gray-800">
                             <div
                                 v-for="m in (report as AnnualData).months"
                                 :key="m.month"
@@ -434,10 +434,10 @@ const maxAnnualAmount = () => {
                                         :title="`Despesas: ${formatCurrency(m.expense_cents)}`"
                                     ></div>
                                 </div>
-                                <span class="text-xs text-gray-500 mt-2 font-medium capitalize">{{ m.name }}</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 mt-2 font-medium capitalize">{{ m.name }}</span>
                             </div>
                         </div>
-                        <div class="flex justify-center space-x-6 mt-4 text-xs font-medium">
+                        <div class="flex justify-center space-x-6 mt-4 text-xs font-medium text-gray-700 dark:text-gray-300">
                             <div class="flex items-center space-x-2">
                                 <span class="h-3 w-3 bg-emerald-500 rounded"></span>
                                 <span>Entradas / Receitas</span>

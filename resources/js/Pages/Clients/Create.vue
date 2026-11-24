@@ -28,12 +28,12 @@ const submit = () => {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold leading-tight text-gray-800">
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-100">
                     Novo Cliente
                 </h2>
                 <Link
                     :href="route('clients.index')"
-                    class="text-sm font-medium text-gray-600 hover:text-gray-900"
+                    class="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
                 >
                     &larr; Voltar para a lista
                 </Link>
@@ -42,7 +42,7 @@ const submit = () => {
 
         <div class="py-12">
             <div class="mx-auto max-w-3xl sm:px-6 lg:px-8">
-                <div class="bg-white p-6 shadow sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-900 p-6 shadow sm:rounded-lg">
                     <form @submit.prevent="submit" class="space-y-6">
                         <!-- Nome -->
                         <div>
@@ -95,7 +95,7 @@ const submit = () => {
                                     id="document_type"
                                     v-model="form.document_type"
                                     @change="form.document_number = maskCpfCnpj(form.document_number, form.document_type)"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 >
                                     <option value="cpf">CPF</option>
                                     <option value="cnpj">CNPJ</option>
@@ -125,14 +125,14 @@ const submit = () => {
                                 id="notes"
                                 v-model="form.notes"
                                 rows="3"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 placeholder="Preferências do cliente, endereço ou informações adicionais..."
                             ></textarea>
                             <InputError class="mt-2" :message="form.errors.notes" />
                         </div>
 
                         <!-- Botões de ação -->
-                        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                             <Link :href="route('clients.index')">
                                 <SecondaryButton type="button">Cancelar</SecondaryButton>
                             </Link>

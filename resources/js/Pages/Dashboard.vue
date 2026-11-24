@@ -63,10 +63,10 @@ const formatDate = (dateStr: string): string => {
         <template #header>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-xl font-bold leading-tight text-gray-900">
+                    <h2 class="text-xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                         {{ metrics.store_name }}
                     </h2>
-                    <p v-if="metrics.activity_description" class="text-sm text-gray-500 mt-0.5">
+                    <p v-if="metrics.activity_description" class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                         {{ metrics.activity_description }}
                     </p>
                 </div>
@@ -92,14 +92,14 @@ const formatDate = (dateStr: string): string => {
                 <!-- Checklist de Onboarding Inicial -->
                 <div
                     v-if="!checklist.store_profile_completed || !checklist.first_client_added || !checklist.first_transaction_recorded"
-                    class="rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-50 to-white p-6 shadow-sm"
+                    class="rounded-xl border border-indigo-100 dark:border-indigo-900/60 bg-gradient-to-r from-indigo-50 to-white dark:from-indigo-950/40 dark:to-gray-900 p-6 shadow-sm"
                 >
                     <div class="flex items-start justify-between">
                         <div>
-                            <h3 class="text-base font-semibold text-indigo-900">
+                            <h3 class="text-base font-semibold text-indigo-900 dark:text-indigo-200">
                                 Primeiros passos para organizar seu negócio 🚀
                             </h3>
-                            <p class="text-sm text-indigo-700 mt-1">
+                            <p class="text-sm text-indigo-700 dark:text-indigo-300 mt-1">
                                 Complete o cadastro inicial para liberar todo o potencial do GestÁgil:
                             </p>
                         </div>
@@ -109,45 +109,45 @@ const formatDate = (dateStr: string): string => {
                         <Link
                             :href="route('business-profile.edit')"
                             class="flex items-center p-3 rounded-lg border transition"
-                            :class="checklist.store_profile_completed ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-gray-200 hover:border-indigo-300'"
+                            :class="checklist.store_profile_completed ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/50 dark:border-emerald-800' : 'bg-white border-gray-200 hover:border-indigo-300 dark:bg-gray-900 dark:border-gray-800 dark:hover:border-indigo-700'"
                         >
                             <span class="mr-3 flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold"
-                                  :class="checklist.store_profile_completed ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-600'">
+                                  :class="checklist.store_profile_completed ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-300'">
                                 {{ checklist.store_profile_completed ? '✓' : '1' }}
                             </span>
                             <div>
-                                <h4 class="text-sm font-medium text-gray-900">Configurar Loja</h4>
-                                <p class="text-xs text-gray-500">Nome fantasia e atividade</p>
+                                <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">Configurar Loja</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Nome fantasia e atividade</p>
                             </div>
                         </Link>
 
                         <Link
                             :href="route('clients.create')"
                             class="flex items-center p-3 rounded-lg border transition"
-                            :class="checklist.first_client_added ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-gray-200 hover:border-indigo-300'"
+                            :class="checklist.first_client_added ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/50 dark:border-emerald-800' : 'bg-white border-gray-200 hover:border-indigo-300 dark:bg-gray-900 dark:border-gray-800 dark:hover:border-indigo-700'"
                         >
                             <span class="mr-3 flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold"
-                                  :class="checklist.first_client_added ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-600'">
+                                  :class="checklist.first_client_added ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-300'">
                                 {{ checklist.first_client_added ? '✓' : '2' }}
                             </span>
                             <div>
-                                <h4 class="text-sm font-medium text-gray-900">Cadastrar Cliente</h4>
-                                <p class="text-xs text-gray-500">Adicione contatos para atendimentos</p>
+                                <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">Cadastrar Cliente</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Adicione contatos para atendimentos</p>
                             </div>
                         </Link>
 
                         <Link
                             :href="route('appointments.create')"
                             class="flex items-center p-3 rounded-lg border transition"
-                            :class="checklist.first_transaction_recorded ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-gray-200 hover:border-indigo-300'"
+                            :class="checklist.first_transaction_recorded ? 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/50 dark:border-emerald-800' : 'bg-white border-gray-200 hover:border-indigo-300 dark:bg-gray-900 dark:border-gray-800 dark:hover:border-indigo-700'"
                         >
                             <span class="mr-3 flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold"
-                                  :class="checklist.first_transaction_recorded ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-600'">
+                                  :class="checklist.first_transaction_recorded ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-300'">
                                 {{ checklist.first_transaction_recorded ? '✓' : '3' }}
                             </span>
                             <div>
-                                <h4 class="text-sm font-medium text-gray-900">Registrar Primeiro Atendimento</h4>
-                                <p class="text-xs text-gray-500">Agende ou registre um serviço já recebido</p>
+                                <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">Registrar Primeiro Atendimento</h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Agende ou registre um serviço já recebido</p>
                             </div>
                         </Link>
                     </div>
@@ -156,37 +156,37 @@ const formatDate = (dateStr: string): string => {
                 <!-- Cards de Indicadores (KPIs) -->
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     <!-- Entradas do Mês -->
-                    <div class="overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-gray-100">
-                        <dt class="truncate text-sm font-medium text-gray-500">Entradas (Mês)</dt>
-                        <dd class="mt-2 text-2xl font-bold tracking-tight text-emerald-600">
+                    <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                        <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Entradas (Mês)</dt>
+                        <dd class="mt-2 text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
                             {{ formatCurrency(metrics.month_income_cents) }}
                         </dd>
                         <p class="mt-2 text-xs text-gray-400">Vendas e recebimentos</p>
                     </div>
 
                     <!-- Despesas do Mês -->
-                    <div class="overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-gray-100">
-                        <dt class="truncate text-sm font-medium text-gray-500">Despesas (Mês)</dt>
-                        <dd class="mt-2 text-2xl font-bold tracking-tight text-rose-600">
+                    <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                        <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Despesas (Mês)</dt>
+                        <dd class="mt-2 text-2xl font-bold tracking-tight text-rose-600 dark:text-rose-400">
                             {{ formatCurrency(metrics.month_expense_cents) }}
                         </dd>
                         <p class="mt-2 text-xs text-gray-400">Contas e custos operacionais</p>
                     </div>
 
                     <!-- Saldo Líquido do Mês -->
-                    <div class="overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-gray-100">
-                        <dt class="truncate text-sm font-medium text-gray-500">Saldo Líquido</dt>
+                    <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                        <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Saldo Líquido</dt>
                         <dd class="mt-2 text-2xl font-bold tracking-tight"
-                            :class="metrics.month_balance_cents >= 0 ? 'text-indigo-600' : 'text-rose-600'">
+                            :class="metrics.month_balance_cents >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'">
                             {{ formatCurrency(metrics.month_balance_cents) }}
                         </dd>
                         <p class="mt-2 text-xs text-gray-400">Entradas menos despesas</p>
                     </div>
 
                     <!-- Atendimentos em Andamento -->
-                    <div class="overflow-hidden rounded-xl bg-white p-6 shadow-sm border border-gray-100">
-                        <dt class="truncate text-sm font-medium text-gray-500">Atendimentos Abertos</dt>
-                        <dd class="mt-2 text-2xl font-bold tracking-tight text-amber-600">
+                    <div class="overflow-hidden rounded-xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                        <dt class="truncate text-sm font-medium text-gray-500 dark:text-gray-400">Atendimentos Abertos</dt>
+                        <dd class="mt-2 text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400">
                             {{ metrics.in_progress_appointments }}
                         </dd>
                         <p class="mt-2 text-xs text-gray-400">Serviços e ordens em andamento</p>
@@ -196,37 +196,37 @@ const formatDate = (dateStr: string): string => {
                 <!-- Grid de Ações Rápidas & Clientes Recentes -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Movimentações Recentes do Caixa -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <div class="flex items-center justify-between border-b pb-4 mb-4">
-                            <h3 class="text-base font-semibold text-gray-900">Últimos Lançamentos no Caixa</h3>
-                            <Link :href="route('transactions.index')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                    <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                        <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4 mb-4">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100">Últimos Lançamentos no Caixa</h3>
+                            <Link :href="route('transactions.index')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
                                 Ver extrato completo &rarr;
                             </Link>
                         </div>
 
                         <div v-if="!metrics.recent_transactions || metrics.recent_transactions.length === 0" class="text-center py-8">
-                            <p class="text-sm text-gray-500">Nenhum lançamento no caixa ainda.</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Nenhum lançamento no caixa ainda.</p>
                             <Link
                                 :href="route('transactions.create', { type: 'income' })"
-                                class="mt-3 inline-block text-xs font-semibold text-emerald-600 underline"
+                                class="mt-3 inline-block text-xs font-semibold text-emerald-600 dark:text-emerald-400 underline"
                             >
                                 Registrar primeira entrada agora
                             </Link>
                         </div>
 
-                        <ul v-else class="divide-y divide-gray-100">
-                            <li v-for="t in metrics.recent_transactions" :key="t.id" class="py-3 flex justify-between items-center hover:bg-gray-50 px-2 rounded-md transition">
+                        <ul v-else class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <li v-for="t in metrics.recent_transactions" :key="t.id" class="py-3 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-800/60 px-2 rounded-md transition">
                                 <div class="min-w-0 pr-2">
-                                    <p class="text-sm font-medium text-gray-900 truncate">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                                         {{ t.description }}
                                     </p>
-                                    <p class="text-xs text-gray-500 truncate">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
                                         {{ t.category?.name || 'Geral' }}
                                         <span v-if="t.client"> • {{ t.client.name }}</span>
                                     </p>
                                 </div>
                                 <div class="text-right flex-shrink-0">
-                                    <span class="text-sm font-bold" :class="t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">
+                                    <span class="text-sm font-bold" :class="t.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
                                         {{ t.type === 'income' ? '+' : '-' }} {{ formatCurrency(t.amount_cents) }}
                                     </span>
                                     <p class="text-xs text-gray-400">{{ formatDate(t.occurred_on) }}</p>
@@ -236,53 +236,53 @@ const formatDate = (dateStr: string): string => {
                     </div>
 
                     <!-- Atalhos Rápidos da Loja -->
-                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between">
+                    <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col justify-between">
                         <div>
-                            <h3 class="text-base font-semibold text-gray-900 border-b pb-4 mb-4">
+                            <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-800 pb-4 mb-4">
                                 Atalhos do Comerciante
                             </h3>
                             <div class="grid grid-cols-2 gap-4">
                                 <Link
                                     :href="route('transactions.create', { type: 'income' })"
-                                    class="p-4 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-left transition group"
+                                    class="p-4 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 dark:bg-emerald-950/50 dark:hover:bg-emerald-950/80 dark:border-emerald-800 text-left transition group"
                                 >
                                     <span class="text-xl">💰</span>
-                                    <h4 class="mt-2 text-sm font-semibold text-emerald-900">Nova Venda / Entrada</h4>
-                                    <p class="text-xs text-emerald-700 mt-0.5">Entrada no caixa ou PIX</p>
+                                    <h4 class="mt-2 text-sm font-semibold text-emerald-900 dark:text-emerald-200">Nova Venda / Entrada</h4>
+                                    <p class="text-xs text-emerald-700 dark:text-emerald-300 mt-0.5">Entrada no caixa ou PIX</p>
                                 </Link>
 
                                 <Link
                                     :href="route('transactions.create', { type: 'expense' })"
-                                    class="p-4 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-left transition group"
+                                    class="p-4 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 dark:bg-rose-950/50 dark:hover:bg-rose-950/80 dark:border-rose-800 text-left transition group"
                                 >
                                     <span class="text-xl">💸</span>
-                                    <h4 class="mt-2 text-sm font-semibold text-rose-900">Nova Despesa</h4>
-                                    <p class="text-xs text-rose-700 mt-0.5">Pagamento ou custo</p>
+                                    <h4 class="mt-2 text-sm font-semibold text-rose-900 dark:text-rose-200">Nova Despesa</h4>
+                                    <p class="text-xs text-rose-700 dark:text-rose-300 mt-0.5">Pagamento ou custo</p>
                                 </Link>
 
                                 <Link
                                     :href="route('appointments.create')"
-                                    class="p-4 rounded-lg bg-gray-50 hover:bg-indigo-50 border border-gray-200 text-left transition group"
+                                    class="p-4 rounded-lg bg-gray-50 hover:bg-indigo-50 border border-gray-200 dark:bg-gray-800/60 dark:hover:bg-indigo-950/50 dark:border-gray-800 text-left transition group"
                                 >
                                     <span class="text-xl">📅</span>
-                                    <h4 class="mt-2 text-sm font-semibold text-gray-900 group-hover:text-indigo-700">Novo Atendimento</h4>
-                                    <p class="text-xs text-gray-500 mt-0.5">Agendar serviço ou ordem</p>
+                                    <h4 class="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">Novo Atendimento</h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Agendar serviço ou ordem</p>
                                 </Link>
 
                                 <Link
                                     :href="route('transactions.index')"
-                                    class="p-4 rounded-lg bg-gray-50 hover:bg-indigo-50 border border-gray-200 text-left transition group"
+                                    class="p-4 rounded-lg bg-gray-50 hover:bg-indigo-50 border border-gray-200 dark:bg-gray-800/60 dark:hover:bg-indigo-950/50 dark:border-gray-800 text-left transition group"
                                 >
                                     <span class="text-xl">📊</span>
-                                    <h4 class="mt-2 text-sm font-semibold text-gray-900 group-hover:text-indigo-700">Fluxo de Caixa</h4>
-                                    <p class="text-xs text-gray-500 mt-0.5">Extrato e fechamento</p>
+                                    <h4 class="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-300">Fluxo de Caixa</h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Extrato e fechamento</p>
                                 </Link>
                             </div>
                         </div>
 
-                        <div class="mt-6 p-4 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-between">
-                            <span class="text-xs text-indigo-900">💡 Precisa alterar seus dados comerciais ou logotipo?</span>
-                            <Link :href="route('business-profile.edit')" class="text-xs font-semibold text-indigo-600 hover:underline">
+                        <div class="mt-6 p-4 rounded-lg bg-indigo-50 border border-indigo-100 dark:bg-indigo-950/50 dark:border-indigo-800 flex items-center justify-between">
+                            <span class="text-xs text-indigo-900 dark:text-indigo-200">💡 Precisa alterar seus dados comerciais ou logotipo?</span>
+                            <Link :href="route('business-profile.edit')" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
                                 Dados da Loja
                             </Link>
                         </div>

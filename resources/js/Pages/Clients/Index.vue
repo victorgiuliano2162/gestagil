@@ -48,7 +48,7 @@ watch(search, (value) => {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold leading-tight text-gray-800">
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-100">
                     Clientes
                 </h2>
                 <Link
@@ -62,7 +62,7 @@ watch(search, (value) => {
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="bg-white p-6 shadow sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-900 p-6 shadow sm:rounded-lg">
                     <!-- Barra de busca -->
                     <div class="mb-6 flex items-center justify-between">
                         <div class="w-full max-w-md">
@@ -70,52 +70,52 @@ watch(search, (value) => {
                                 v-model="search"
                                 type="text"
                                 placeholder="Buscar por nome, documento ou telefone..."
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                             />
                         </div>
-                        <div class="text-sm text-gray-500">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
                             Total: {{ clients.total }} cliente(s)
                         </div>
                     </div>
 
                     <!-- Tabela de Clientes -->
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Nome</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Telefone</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Documento</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">E-mail</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Ações</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Nome</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Telefone</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Documento</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">E-mail</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 bg-white">
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
                                 <tr v-if="clients.data.length === 0">
-                                    <td colspan="5" class="py-10 text-center text-sm text-gray-500">
+                                    <td colspan="5" class="py-10 text-center text-sm text-gray-500 dark:text-gray-400">
                                         Nenhum cliente encontrado.
                                     </td>
                                 </tr>
-                                <tr v-for="c in clients.data" :key="c.id" class="hover:bg-gray-50">
-                                    <td class="whitespace-nowrap px-6 py-4 font-medium text-gray-900">
-                                        <Link :href="route('clients.show', c.id)" class="text-indigo-600 hover:text-indigo-900">
+                                <tr v-for="c in clients.data" :key="c.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
+                                        <Link :href="route('clients.show', c.id)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
                                             {{ c.name }}
                                         </Link>
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                                         {{ c.phone_e164 ? maskPhone(c.phone_e164) : '-' }}
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                                         {{ c.document_number ? maskCpfCnpj(c.document_number) : '-' }}
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                                         {{ c.email || '-' }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                                        <Link :href="route('clients.edit', c.id)" class="mr-3 text-indigo-600 hover:text-indigo-900">
+                                        <Link :href="route('clients.edit', c.id)" class="mr-3 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
                                             Editar
                                         </Link>
-                                        <Link :href="route('clients.show', c.id)" class="text-gray-600 hover:text-gray-900">
+                                        <Link :href="route('clients.show', c.id)" class="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100">
                                             Detalhes
                                         </Link>
                                     </td>
@@ -125,24 +125,24 @@ watch(search, (value) => {
                     </div>
 
                     <!-- Paginação simples -->
-                    <div class="mt-6 flex items-center justify-between border-t border-gray-200 pt-4" v-if="clients.last_page > 1">
+                    <div class="mt-6 flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-4" v-if="clients.last_page > 1">
                         <Link
                             v-if="clients.prev_page_url"
                             :href="clients.prev_page_url"
-                            class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            class="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/60"
                         >
                             Anterior
                         </Link>
                         <span v-else></span>
 
-                        <span class="text-sm text-gray-500">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">
                             Página {{ clients.current_page }} de {{ clients.last_page }}
                         </span>
 
                         <Link
                             v-if="clients.next_page_url"
                             :href="clients.next_page_url"
-                            class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            class="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/60"
                         >
                             Próxima
                         </Link>

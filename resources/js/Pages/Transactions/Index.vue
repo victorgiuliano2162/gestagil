@@ -100,17 +100,17 @@ const deleteTransaction = (id: number) => {
         <template #header>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 class="text-xl font-bold leading-tight text-gray-900">
+                    <h2 class="text-xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                         Fluxo de Caixa e Lançamentos
                     </h2>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Controle rápido de entradas e saídas do comércio
                     </p>
                 </div>
                 <div class="flex items-center space-x-2">
                     <Link
                         :href="route('categories.index')"
-                        class="rounded-md border border-gray-300 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                        class="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3.5 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800/60"
                     >
                         Categorias
                     </Link>
@@ -134,25 +134,25 @@ const deleteTransaction = (id: number) => {
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-6">
                 <!-- Cards de Resumo Mensal -->
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                        <span class="text-xs font-semibold text-emerald-700 uppercase">Total de Entradas</span>
-                        <p class="text-2xl font-black text-emerald-600 mt-1">
+                    <div class="bg-white dark:bg-gray-900 p-5 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <span class="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase">Total de Entradas</span>
+                        <p class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
                             {{ formatCurrency(summary.income_cents) }}
                         </p>
                         <span class="text-[11px] text-gray-400">Vendas e serviços recebidos</span>
                     </div>
 
-                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                        <span class="text-xs font-semibold text-rose-700 uppercase">Total de Saídas</span>
-                        <p class="text-2xl font-black text-rose-600 mt-1">
+                    <div class="bg-white dark:bg-gray-900 p-5 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <span class="text-xs font-semibold text-rose-700 dark:text-rose-400 uppercase">Total de Saídas</span>
+                        <p class="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">
                             {{ formatCurrency(summary.expense_cents) }}
                         </p>
                         <span class="text-[11px] text-gray-400">Despesas, custos e compras</span>
                     </div>
 
-                    <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                        <span class="text-xs font-semibold text-gray-700 uppercase">Resultado Líquido</span>
-                        <p class="text-2xl font-black mt-1" :class="summary.net_cents >= 0 ? 'text-indigo-600' : 'text-rose-600'">
+                    <div class="bg-white dark:bg-gray-900 p-5 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <span class="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase">Resultado Líquido</span>
+                        <p class="text-2xl font-black mt-1" :class="summary.net_cents >= 0 ? 'text-indigo-600 dark:text-indigo-400' : 'text-rose-600 dark:text-rose-400'">
                             {{ formatCurrency(summary.net_cents) }}
                         </p>
                         <span class="text-[11px] text-gray-400">Saldo apurado no período</span>
@@ -160,7 +160,7 @@ const deleteTransaction = (id: number) => {
                 </div>
 
                 <!-- Tabela de Lançamentos -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
                     <div class="mb-6 flex flex-col gap-4">
                         <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
@@ -168,12 +168,12 @@ const deleteTransaction = (id: number) => {
                                     v-model="month"
                                     type="month"
                                     @change="applyFilters"
-                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 />
                                 <select
                                     v-model="selectedCategory"
                                     @change="applyFilters"
-                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 >
                                     <option value="">Todas as categorias</option>
                                     <option v-for="c in categories" :key="c.id" :value="String(c.id)">
@@ -183,7 +183,7 @@ const deleteTransaction = (id: number) => {
                                 <select
                                     v-model="selectedPaymentMethod"
                                     @change="applyFilters"
-                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 >
                                     <option value="">Todos os meios</option>
                                     <option v-for="pm in paymentMethods" :key="pm.value" :value="pm.value">
@@ -193,7 +193,7 @@ const deleteTransaction = (id: number) => {
                                 <select
                                     v-model="selectedClient"
                                     @change="applyFilters"
-                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 >
                                     <option value="">Todos os clientes</option>
                                     <option v-for="cl in clients" :key="cl.id" :value="String(cl.id)">
@@ -206,21 +206,21 @@ const deleteTransaction = (id: number) => {
                             <button
                                 @click="selectedType = ''; applyFilters()"
                                 class="px-3 py-1.5 text-xs font-semibold rounded-lg transition"
-                                :class="!selectedType ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                :class="!selectedType ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'"
                             >
                                 Todos
                             </button>
                             <button
                                 @click="selectedType = 'income'; applyFilters()"
                                 class="px-3 py-1.5 text-xs font-semibold rounded-lg transition"
-                                :class="selectedType === 'income' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                :class="selectedType === 'income' ? 'bg-emerald-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'"
                             >
                                 Entradas
                             </button>
                             <button
                                 @click="selectedType = 'expense'; applyFilters()"
                                 class="px-3 py-1.5 text-xs font-semibold rounded-lg transition"
-                                :class="selectedType === 'expense' ? 'bg-rose-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                :class="selectedType === 'expense' ? 'bg-rose-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'"
                             >
                                 Saídas
                             </button>
@@ -229,8 +229,8 @@ const deleteTransaction = (id: number) => {
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50 text-xs font-medium uppercase tracking-wider text-gray-500">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                            <thead class="bg-gray-50 dark:bg-gray-800 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
                                 <tr>
                                     <th class="px-4 py-3 text-left">Data</th>
                                     <th class="px-4 py-3 text-left">Descrição</th>
@@ -241,53 +241,53 @@ const deleteTransaction = (id: number) => {
                                     <th class="px-4 py-3 text-right">Ação</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 bg-white text-sm">
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900 text-sm">
                                 <tr v-if="transactions.data.length === 0">
-                                    <td colspan="7" class="py-10 text-center text-gray-500">
+                                    <td colspan="7" class="py-10 text-center text-gray-500 dark:text-gray-400">
                                         Nenhum lançamento registrado neste mês.
                                     </td>
                                 </tr>
-                                <tr v-for="t in transactions.data" :key="t.id" class="hover:bg-gray-50">
-                                    <td class="whitespace-nowrap px-4 py-3 text-gray-600 font-medium">
+                                <tr v-for="t in transactions.data" :key="t.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                                    <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
                                         {{ formatDateOnly(t.occurred_on) }}
                                     </td>
-                                    <td class="px-4 py-3 font-semibold text-gray-900">
+                                    <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">
                                         {{ t.description }}
                                     </td>
-                                    <td class="whitespace-nowrap px-4 py-3 text-gray-600">
-                                        <span v-if="t.category" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                    <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">
+                                        <span v-if="t.category" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100">
                                             {{ t.category.name }}
                                         </span>
                                         <span v-else class="text-gray-400 text-xs">Sem categoria</span>
                                     </td>
-                                    <td class="whitespace-nowrap px-4 py-3 text-gray-600">
+                                    <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">
                                         {{ t.client?.name || '-' }}
                                     </td>
-                                    <td class="whitespace-nowrap px-4 py-3 text-xs font-bold text-gray-500">
+                                    <td class="whitespace-nowrap px-4 py-3 text-xs font-bold text-gray-500 dark:text-gray-400">
                                         {{ formatPaymentMethod(t.payment_method) }}
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-right font-bold"
-                                        :class="t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'">
+                                        :class="t.type === 'income' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
                                         {{ t.type === 'income' ? '+' : '-' }} {{ formatCurrency(t.amount_cents) }}
                                     </td>
                                     <td class="whitespace-nowrap px-4 py-3 text-right text-xs space-x-2">
                                         <Link
                                             :href="route('transactions.edit', t.id)"
-                                            class="text-indigo-600 hover:text-indigo-900 font-semibold"
+                                            class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 font-semibold"
                                         >
                                             Editar
                                         </Link>
                                         <Link
                                             v-if="t.type === 'income'"
                                             :href="route('receipts.create', { transaction_id: t.id })"
-                                            class="inline-flex items-center text-indigo-600 hover:text-indigo-900 font-semibold bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded transition"
+                                            class="inline-flex items-center text-indigo-600 dark:text-indigo-300 hover:text-indigo-900 dark:hover:text-indigo-200 font-semibold bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 px-2.5 py-1 rounded transition"
                                         >
                                             📄 Recibo
                                         </Link>
                                         <button
                                             v-if="!t.has_active_receipt"
                                             @click="deleteTransaction(t.id)"
-                                            class="text-rose-600 hover:text-rose-900 font-semibold"
+                                            class="text-rose-600 dark:text-rose-400 hover:text-rose-900 dark:hover:text-rose-300 font-semibold"
                                         >
                                             Excluir
                                         </button>
@@ -305,24 +305,24 @@ const deleteTransaction = (id: number) => {
                     </div>
 
                     <!-- Paginação -->
-                    <div class="mt-6 flex items-center justify-between border-t border-gray-200 pt-4" v-if="transactions.last_page > 1">
+                    <div class="mt-6 flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-4" v-if="transactions.last_page > 1">
                         <Link
                             v-if="transactions.prev_page_url"
                             :href="transactions.prev_page_url"
-                            class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                            class="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/60"
                         >
                             Anterior
                         </Link>
                         <span v-else></span>
 
-                        <span class="text-xs text-gray-500">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">
                             Página {{ transactions.current_page }} de {{ transactions.last_page }}
                         </span>
 
                         <Link
                             v-if="transactions.next_page_url"
                             :href="transactions.next_page_url"
-                            class="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                            class="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/60"
                         >
                             Próxima
                         </Link>

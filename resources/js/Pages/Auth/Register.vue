@@ -93,16 +93,16 @@ const submit = () => {
                 />
 
                 <!-- Regras visuais da senha -->
-                <div class="mt-2 rounded-md bg-gray-50 p-3 border border-gray-200">
-                    <p class="text-xs font-semibold text-gray-600 mb-1.5">Requisitos para sua senha:</p>
+                <div class="mt-2 rounded-md bg-gray-50 dark:bg-gray-800/60 p-3 border border-gray-200 dark:border-gray-800">
+                    <p class="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1.5">Requisitos para sua senha:</p>
                     <ul class="space-y-1 text-xs">
                         <li
                             v-for="(rule, idx) in passwordRules"
                             :key="idx"
                             class="flex items-center space-x-1.5"
-                            :class="rule.valid ? 'text-emerald-700 font-medium' : 'text-gray-500'"
+                            :class="rule.valid ? 'text-emerald-700 dark:text-emerald-300 font-medium' : 'text-gray-500 dark:text-gray-400'"
                         >
-                            <svg v-if="rule.valid" class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg v-if="rule.valid" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                             </svg>
                             <svg v-else class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -133,13 +133,13 @@ const submit = () => {
 
                 <p
                     v-if="form.password_confirmation.length > 0 && !passwordsMatch"
-                    class="mt-1.5 text-xs text-amber-600 font-medium flex items-center space-x-1"
+                    class="mt-1.5 text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center space-x-1"
                 >
                     <span>⚠️ As senhas digitadas ainda não conferem.</span>
                 </p>
                 <p
                     v-else-if="passwordsMatch"
-                    class="mt-1.5 text-xs text-emerald-600 font-medium flex items-center space-x-1"
+                    class="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center space-x-1"
                 >
                     <span>✓ As senhas conferem perfeitamente.</span>
                 </p>
@@ -153,9 +153,9 @@ const submit = () => {
             <div class="mt-4">
                 <label class="flex items-center">
                     <Checkbox name="terms" v-model:checked="form.terms" required />
-                    <span class="ms-2 text-sm text-gray-600">
+                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-300">
                         Concordo com os
-                        <a target="_blank" href="/termos" class="underline text-indigo-600 hover:text-indigo-900">Termos de Uso</a>
+                        <a target="_blank" href="/termos" class="underline text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">Termos de Uso</a>
                         e Política de Privacidade.
                     </span>
                 </label>
@@ -165,7 +165,7 @@ const submit = () => {
             <div class="mt-6 flex items-center justify-between">
                 <Link
                     :href="route('login')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-900"
                 >
                     Já possui conta? Entrar
                 </Link>

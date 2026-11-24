@@ -118,16 +118,16 @@ const submit = () => {
         <template #header>
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-xl font-bold leading-tight" :class="form.type === 'income' ? 'text-emerald-700' : 'text-rose-700'">
+                    <h2 class="text-xl font-bold leading-tight" :class="form.type === 'income' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'">
                         {{ form.type === 'income' ? '+ Registrar Entrada (Receita)' : '- Registrar Saída (Despesa)' }}
                     </h2>
-                    <p class="text-xs text-gray-500 mt-0.5">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                         Lançamento rápido no fluxo de caixa
                     </p>
                 </div>
                 <Link
                     :href="route('transactions.index')"
-                    class="text-sm font-medium text-gray-600 hover:text-gray-900"
+                    class="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
                 >
                     &larr; Voltar ao Caixa
                 </Link>
@@ -136,14 +136,14 @@ const submit = () => {
 
         <div class="py-12">
             <div class="mx-auto max-w-2xl sm:px-6 lg:px-8">
-                <div class="bg-white p-6 shadow sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-900 p-6 shadow sm:rounded-lg">
                     <!-- Alternador de Tipo -->
-                    <div class="mb-6 grid grid-cols-2 gap-2 p-1 bg-gray-100 rounded-lg">
+                    <div class="mb-6 grid grid-cols-2 gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
                         <button
                             type="button"
                             @click="form.type = 'income'"
                             class="py-2 text-sm font-bold rounded-md transition"
-                            :class="form.type === 'income' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                            :class="form.type === 'income' ? 'bg-emerald-600 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'"
                         >
                             + Entrada (Venda/Serviço)
                         </button>
@@ -151,7 +151,7 @@ const submit = () => {
                             type="button"
                             @click="form.type = 'expense'"
                             class="py-2 text-sm font-bold rounded-md transition"
-                            :class="form.type === 'expense' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                            :class="form.type === 'expense' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'"
                         >
                             - Saída (Despesa/Custo)
                         </button>
@@ -168,7 +168,7 @@ const submit = () => {
                                     step="0.01"
                                     min="0.01"
                                     class="mt-1 block w-full text-lg font-bold"
-                                    :class="form.type === 'income' ? 'text-emerald-700' : 'text-rose-700'"
+                                    :class="form.type === 'income' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'"
                                     v-model="form.amount"
                                     placeholder="0,00"
                                     required
@@ -211,7 +211,7 @@ const submit = () => {
                                 <select
                                     id="payment_method"
                                     v-model="form.payment_method"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                     required
                                 >
                                     <option v-for="m in paymentMethods" :key="m.value" :value="m.value">
@@ -226,7 +226,7 @@ const submit = () => {
                                 <select
                                     id="category_id"
                                     v-model="form.category_id"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 >
                                     <option value="">Sem categoria</option>
                                     <option v-for="cat in filteredCategories" :key="cat.id" :value="cat.id">
@@ -244,7 +244,7 @@ const submit = () => {
                                 <button
                                     type="button"
                                     @click="openQuickClientModal"
-                                    class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                                    class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
                                 >
                                     + Cadastrar novo cliente
                                 </button>
@@ -252,7 +252,7 @@ const submit = () => {
                             <select
                                 id="client_id"
                                 v-model="form.client_id"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                             >
                                 <option value="">Nenhum (Venda anônima ou geral)</option>
                                 <option v-for="c in clientList" :key="c.id" :value="c.id">
@@ -263,7 +263,7 @@ const submit = () => {
                         </div>
 
                         <!-- Ações -->
-                        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                             <Link :href="route('transactions.index')">
                                 <SecondaryButton type="button">Cancelar</SecondaryButton>
                             </Link>
@@ -283,8 +283,8 @@ const submit = () => {
         <!-- Modal Cadastro Rápido de Cliente -->
         <Modal :show="showQuickClientModal" @close="showQuickClientModal = false">
             <form @submit.prevent="submitQuickClient" class="p-6 space-y-4">
-                <h3 class="text-lg font-bold text-gray-900">Cadastrar Cliente na Venda</h3>
-                <p v-if="quickClientError" class="text-sm text-rose-600">{{ quickClientError }}</p>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Cadastrar Cliente na Venda</h3>
+                <p v-if="quickClientError" class="text-sm text-rose-600 dark:text-rose-400">{{ quickClientError }}</p>
                 <div>
                     <InputLabel for="tx_quick_name" value="Nome Completo *" />
                     <TextInput id="tx_quick_name" v-model="quickClient.name" type="text" class="mt-1 block w-full" required />
@@ -314,7 +314,7 @@ const submit = () => {
                             id="tx_quick_doc_type"
                             v-model="quickClient.document_type"
                             @change="quickClient.document_number = maskCpfCnpj(quickClient.document_number, quickClient.document_type)"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         >
                             <option value="cpf">CPF</option>
                             <option value="cnpj">CNPJ</option>

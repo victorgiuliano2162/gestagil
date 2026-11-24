@@ -99,12 +99,12 @@ const submit = () => {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="text-xl font-semibold leading-tight text-gray-800">
+                <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-100">
                     Novo Atendimento / Ordem de Serviço
                 </h2>
                 <Link
                     :href="route('appointments.index')"
-                    class="text-sm font-medium text-gray-600 hover:text-gray-900"
+                    class="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
                 >
                     &larr; Voltar
                 </Link>
@@ -113,7 +113,7 @@ const submit = () => {
 
         <div class="py-12">
             <div class="mx-auto max-w-3xl sm:px-6 lg:px-8">
-                <div class="bg-white p-6 shadow sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-900 p-6 shadow sm:rounded-lg">
                     <form @submit.prevent="submit" class="space-y-6">
                         <!-- Seleção de Cliente -->
                         <div>
@@ -122,7 +122,7 @@ const submit = () => {
                                 <button
                                     type="button"
                                     @click="openQuickClientModal"
-                                    class="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                                    class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
                                 >
                                     + Cadastrar novo cliente
                                 </button>
@@ -131,7 +131,7 @@ const submit = () => {
                             <select
                                 id="client_id"
                                 v-model="form.client_id"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 required
                             >
                                 <option value="" disabled>Selecione um cliente...</option>
@@ -182,7 +182,7 @@ const submit = () => {
                                 id="service_description"
                                 v-model="form.service_description"
                                 rows="3"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 placeholder="Ex: Conserto de placa eletrônica, ajuste de costura, troca de óleo e filtro..."
                                 required
                             ></textarea>
@@ -196,38 +196,38 @@ const submit = () => {
                                 id="technical_notes"
                                 v-model="form.technical_notes"
                                 rows="2"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 placeholder="Peças necessárias, número de série do aparelho, defeito relatado..."
                             ></textarea>
                             <InputError class="mt-2" :message="form.errors.technical_notes" />
                         </div>
 
                         <!-- Concluir e receber na hora (Opção B) -->
-                        <div class="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4 space-y-4">
+                        <div class="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/50 p-4 space-y-4">
                             <label class="flex items-start space-x-3 cursor-pointer">
                                 <input
                                     type="checkbox"
                                     v-model="form.is_completed_and_paid"
-                                    class="mt-0.5 rounded border-gray-300 text-emerald-600 shadow-sm focus:ring-emerald-500"
+                                    class="mt-0.5 rounded border-gray-300 dark:border-gray-700 dark:bg-gray-800 text-emerald-600 shadow-sm focus:ring-emerald-500"
                                 />
                                 <div>
-                                    <span class="text-sm font-semibold text-gray-900">
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">
                                         Já concluído e recebido na hora
                                     </span>
-                                    <p class="text-xs text-gray-600">
+                                    <p class="text-xs text-gray-600 dark:text-gray-300">
                                         Conclui o atendimento e já registra a entrada no fluxo de caixa em 1 clique.
                                     </p>
                                 </div>
                             </label>
 
-                            <div v-if="form.is_completed_and_paid" class="space-y-4 pt-2 border-t border-emerald-200">
+                            <div v-if="form.is_completed_and_paid" class="space-y-4 pt-2 border-t border-emerald-200 dark:border-emerald-800">
                                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div>
                                         <InputLabel for="payment_method" value="Forma de Pagamento *" />
                                         <select
                                             id="payment_method"
                                             v-model="form.payment_method"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                                             required
                                         >
                                             <option v-for="m in paymentMethods" :key="m.value" :value="m.value">
@@ -242,7 +242,7 @@ const submit = () => {
                                         <select
                                             id="category_id"
                                             v-model="form.category_id"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+                                            class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                                         >
                                             <option value="">Sem categoria</option>
                                             <option v-for="cat in incomeCategories" :key="cat.id" :value="cat.id">
@@ -257,9 +257,9 @@ const submit = () => {
                                     <input
                                         type="checkbox"
                                         v-model="form.issue_receipt"
-                                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                        class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-800 text-indigo-600 shadow-sm focus:ring-indigo-500"
                                     />
-                                    <span class="text-sm font-medium text-gray-800">
+                                    <span class="text-sm font-medium text-gray-800 dark:text-gray-100">
                                         Emitir recibo em seguida
                                     </span>
                                 </label>
@@ -267,7 +267,7 @@ const submit = () => {
                         </div>
 
                         <!-- Ações -->
-                        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-800">
                             <Link :href="route('appointments.index')">
                                 <SecondaryButton type="button">Cancelar</SecondaryButton>
                             </Link>
@@ -293,8 +293,8 @@ const submit = () => {
         <!-- Modal Cadastro Rápido de Cliente (RF-ATD-06) -->
         <Modal :show="showQuickClientModal" @close="showQuickClientModal = false">
             <form @submit.prevent="submitQuickClient" class="p-6 space-y-4">
-                <h3 class="text-lg font-bold text-gray-900">Cadastro Rápido de Cliente</h3>
-                <p v-if="quickClientError" class="text-sm text-rose-600">{{ quickClientError }}</p>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Cadastro Rápido de Cliente</h3>
+                <p v-if="quickClientError" class="text-sm text-rose-600 dark:text-rose-400">{{ quickClientError }}</p>
                 <div>
                     <InputLabel for="quick_name" value="Nome Completo *" />
                     <TextInput id="quick_name" v-model="quickClient.name" type="text" class="mt-1 block w-full" required />

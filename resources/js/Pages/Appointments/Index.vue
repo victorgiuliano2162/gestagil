@@ -87,11 +87,11 @@ const formatCurrency = (cents: number | null) => {
 const getStatusBadge = (s: string) => {
     switch (s) {
         case 'completed':
-            return { label: 'Concluído', bg: 'bg-emerald-100 text-emerald-800' };
+            return { label: 'Concluído', bg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300' };
         case 'canceled':
-            return { label: 'Cancelado', bg: 'bg-rose-100 text-rose-800' };
+            return { label: 'Cancelado', bg: 'bg-rose-100 text-rose-800 dark:bg-rose-950/50 dark:text-rose-300' };
         default:
-            return { label: 'Em Andamento', bg: 'bg-amber-100 text-amber-800' };
+            return { label: 'Em Andamento', bg: 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300' };
     }
 };
 </script>
@@ -103,10 +103,10 @@ const getStatusBadge = (s: string) => {
         <template #header>
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-xl font-semibold leading-tight text-gray-800">
+                    <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-100">
                         Atendimentos e Ordens de Serviço
                     </h2>
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Acompanhe serviços, entregas e manutenções da sua loja
                     </p>
                 </div>
@@ -121,7 +121,7 @@ const getStatusBadge = (s: string) => {
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="bg-white p-6 shadow sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-900 p-6 shadow sm:rounded-lg">
                     <!-- Filtros -->
                     <div class="mb-6 flex flex-col gap-4">
                         <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -130,12 +130,12 @@ const getStatusBadge = (s: string) => {
                                     v-model="search"
                                     type="text"
                                     placeholder="Buscar por serviço ou cliente..."
-                                    class="w-full sm:w-64 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="w-full sm:w-64 rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 />
                                 <select
                                     v-model="clientId"
                                     @change="applyFilters"
-                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 >
                                     <option value="">Todos os clientes</option>
                                     <option v-for="c in clients" :key="c.id" :value="String(c.id)">
@@ -147,14 +147,14 @@ const getStatusBadge = (s: string) => {
                                     type="date"
                                     @change="applyFilters"
                                     title="Data inicial"
-                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 />
                                 <input
                                     v-model="dateTo"
                                     type="date"
                                     @change="applyFilters"
                                     title="Data final"
-                                    class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                    class="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 />
                             </div>
 
@@ -163,7 +163,7 @@ const getStatusBadge = (s: string) => {
                             <button
                                 @click="status = ''"
                                 class="px-3 py-1.5 text-xs font-semibold rounded-lg transition"
-                                :class="!status ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                :class="!status ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
                             >
                                 Todos
                             </button>
@@ -172,7 +172,7 @@ const getStatusBadge = (s: string) => {
                                 :key="s.value"
                                 @click="status = s.value"
                                 class="px-3 py-1.5 text-xs font-semibold rounded-lg transition"
-                                :class="status === s.value ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                :class="status === s.value ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
                             >
                                 {{ s.label }}
                             </button>
@@ -182,36 +182,36 @@ const getStatusBadge = (s: string) => {
 
                     <!-- Tabela de Atendimentos -->
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Data / Hora</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Cliente</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Descrição do Serviço</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Valor Previsto</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-                                    <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Ações</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Data / Hora</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Cliente</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Descrição do Serviço</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Valor Previsto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200 bg-white">
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
                                 <tr v-if="appointments.data.length === 0">
-                                    <td colspan="6" class="py-10 text-center text-sm text-gray-500">
+                                    <td colspan="6" class="py-10 text-center text-sm text-gray-500 dark:text-gray-400">
                                         Nenhum atendimento encontrado.
                                     </td>
                                 </tr>
-                                <tr v-for="a in appointments.data" :key="a.id" class="hover:bg-gray-50">
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                                <tr v-for="a in appointments.data" :key="a.id" class="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                                         {{ new Date(a.service_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) }}
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                                        <Link :href="route('clients.show', a.client.id)" class="text-indigo-600 hover:text-indigo-900 font-medium">
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                                        <Link :href="route('clients.show', a.client.id)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">
                                             {{ a.client.name }}
                                         </Link>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 max-w-xs truncate">
                                         {{ a.service_description }}
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-gray-900">
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                                         {{ formatCurrency(a.expected_amount_cents) }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-sm">
@@ -223,7 +223,7 @@ const getStatusBadge = (s: string) => {
                                         </span>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium space-x-2">
-                                        <Link :href="route('appointments.show', a.id)" class="text-indigo-600 hover:text-indigo-900">
+                                        <Link :href="route('appointments.show', a.id)" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
                                             Ver Detalhes
                                         </Link>
                                     </td>
@@ -233,24 +233,24 @@ const getStatusBadge = (s: string) => {
                     </div>
 
                     <!-- Paginação -->
-                    <div class="mt-6 flex items-center justify-between border-t border-gray-200 pt-4" v-if="appointments.last_page > 1">
+                    <div class="mt-6 flex items-center justify-between border-t border-gray-200 dark:border-gray-800 pt-4" v-if="appointments.last_page > 1">
                         <Link
                             v-if="appointments.prev_page_url"
                             :href="appointments.prev_page_url"
-                            class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            class="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/60"
                         >
                             Anterior
                         </Link>
                         <span v-else></span>
 
-                        <span class="text-sm text-gray-500">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">
                             Página {{ appointments.current_page }} de {{ appointments.last_page }}
                         </span>
 
                         <Link
                             v-if="appointments.next_page_url"
                             :href="appointments.next_page_url"
-                            class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            class="rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/60"
                         >
                             Próxima
                         </Link>

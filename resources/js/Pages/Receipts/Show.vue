@@ -116,17 +116,17 @@ const formatDate = (dateStr: string): string => {
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <div class="flex items-center space-x-3">
-                        <h2 class="text-xl font-bold leading-tight text-gray-900">
+                        <h2 class="text-xl font-bold leading-tight text-gray-900 dark:text-gray-100">
                             Recibo Nº {{ receipt.formatted_number }}
                         </h2>
                         <span
                             class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                            :class="receipt.status === 'issued' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'"
+                            :class="receipt.status === 'issued' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950/50 dark:text-rose-300'"
                         >
                             {{ receipt.status === 'issued' ? 'Emitido / Válido' : 'Cancelado' }}
                         </span>
                     </div>
-                    <p class="text-sm text-gray-500 mt-0.5">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                         Emitido em {{ formatDate(receipt.issued_at) }}
                     </p>
                 </div>
@@ -136,7 +136,7 @@ const formatDate = (dateStr: string): string => {
                     <a
                         :href="route('receipts.pdf', { receipt: receipt.id, disposition: 'attachment' })"
                         target="_blank"
-                        class="inline-flex items-center rounded-md bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                        class="inline-flex items-center rounded-md bg-white dark:bg-gray-900 px-3.5 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/60"
                     >
                         📄 Baixar PDF
                     </a>
@@ -162,7 +162,7 @@ const formatDate = (dateStr: string): string => {
                     <button
                         v-if="receipt.status === 'issued'"
                         @click="showCancelModal = true"
-                        class="inline-flex items-center rounded-md bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 ring-1 ring-inset ring-rose-200 hover:bg-rose-100"
+                        class="inline-flex items-center rounded-md bg-rose-50 dark:bg-rose-950/50 px-3 py-2 text-sm font-semibold text-rose-700 dark:text-rose-300 ring-1 ring-inset ring-rose-200 dark:ring-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/50"
                     >
                         ❌ Cancelar
                     </button>
@@ -175,18 +175,18 @@ const formatDate = (dateStr: string): string => {
                 <!-- Banner de Cancelamento se houver -->
                 <div
                     v-if="receipt.status === 'canceled'"
-                    class="rounded-xl border border-rose-200 bg-rose-50 p-5 shadow-sm"
+                    class="rounded-xl border border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/50 p-5 shadow-sm"
                 >
                     <div class="flex items-start">
                         <span class="text-2xl mr-3">⚠️</span>
                         <div>
-                            <h3 class="text-base font-bold text-rose-900">
+                            <h3 class="text-base font-bold text-rose-900 dark:text-rose-200">
                                 Este recibo foi oficialmente cancelado
                             </h3>
-                            <p class="text-sm text-rose-700 mt-1">
+                            <p class="text-sm text-rose-700 dark:text-rose-300 mt-1">
                                 Data do cancelamento: <strong>{{ formatDate(receipt.canceled_at || '') }}</strong>
                             </p>
-                            <p v-if="receipt.cancel_reason" class="text-sm text-rose-800 mt-1">
+                            <p v-if="receipt.cancel_reason" class="text-sm text-rose-800 dark:text-rose-300 mt-1">
                                 Motivo: <em>"{{ receipt.cancel_reason }}"</em>
                             </p>
                         </div>
@@ -194,23 +194,23 @@ const formatDate = (dateStr: string): string => {
                 </div>
 
                 <!-- Box de Compartilhamento e Link Público -->
-                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div class="text-sm text-indigo-900">
+                <div class="bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800 p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="text-sm text-indigo-900 dark:text-indigo-200">
                         <span class="font-bold">Link de Verificação Pública:</span>
-                        <a :href="publicUrl" target="_blank" class="underline text-indigo-700 ml-1 break-all">
+                        <a :href="publicUrl" target="_blank" class="underline text-indigo-700 dark:text-indigo-300 ml-1 break-all">
                             {{ publicUrl }}
                         </a>
                     </div>
                     <button
                         @click="copyPublicUrl"
-                        class="text-xs font-semibold px-3 py-1.5 rounded bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition whitespace-nowrap"
+                        class="text-xs font-semibold px-3 py-1.5 rounded bg-white dark:bg-gray-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition whitespace-nowrap"
                     >
                         {{ copied ? '✓ Link Copiado!' : 'Copiar Link' }}
                     </button>
                 </div>
 
                 <!-- Simulação do Recibo Impresso / Visual do Comprovante -->
-                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200 space-y-6 relative overflow-hidden">
+                <div class="bg-white dark:bg-gray-900 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 space-y-6 relative overflow-hidden">
                     <!-- Tarja d'água de Cancelado -->
                     <div
                         v-if="receipt.status === 'canceled'"
@@ -222,12 +222,12 @@ const formatDate = (dateStr: string): string => {
                     </div>
 
                     <!-- Cabeçalho do Recibo -->
-                    <div class="border-b border-gray-200 pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="border-b border-gray-200 dark:border-gray-800 pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <h3 class="text-2xl font-black text-gray-900 uppercase tracking-tight">
+                            <h3 class="text-2xl font-black text-gray-900 dark:text-gray-100 uppercase tracking-tight">
                                 {{ receipt.issuer_snapshot.store_name || receipt.issuer_snapshot.display_name }}
                             </h3>
-                            <p class="text-xs text-gray-500 mt-1">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 <span v-if="receipt.issuer_snapshot.document_number">
                                     {{ receipt.issuer_snapshot.document_type?.toUpperCase() }}: {{ receipt.issuer_snapshot.document_number }} •
                                 </span>
@@ -240,64 +240,64 @@ const formatDate = (dateStr: string): string => {
                             </p>
                         </div>
 
-                        <div class="text-left sm:text-right bg-indigo-50/50 p-4 rounded-lg border border-indigo-100">
-                            <span class="text-xs font-bold text-indigo-600 uppercase">Recibo Digital</span>
-                            <div class="text-xl font-black text-indigo-900">
+                        <div class="text-left sm:text-right bg-indigo-50/50 dark:bg-indigo-950/50 p-4 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                            <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase">Recibo Digital</span>
+                            <div class="text-xl font-black text-indigo-900 dark:text-indigo-200">
                                 Nº {{ receipt.formatted_number }}
                             </div>
-                            <span class="text-xs text-gray-500">
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
                                 {{ formatDate(receipt.issued_at) }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Valor Destaque -->
-                    <div class="bg-gray-50 rounded-lg p-5 border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Valor Recebido</span>
-                        <div class="text-3xl font-black text-emerald-600">
+                    <div class="bg-gray-50 dark:bg-gray-800/60 rounded-lg p-5 border border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Valor Recebido</span>
+                        <div class="text-3xl font-black text-emerald-600 dark:text-emerald-400">
                             {{ receipt.formatted_amount }}
                         </div>
                     </div>
 
                     <!-- Valor por Extenso -->
-                    <div class="p-4 rounded-lg bg-emerald-50/50 border-l-4 border-emerald-500 text-sm italic text-gray-800">
+                    <div class="p-4 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/50 border-l-4 border-emerald-500 text-sm italic text-gray-800 dark:text-gray-100">
                         <strong>({{ receipt.amount_in_words }})</strong>
                     </div>
 
                     <!-- Dados do Pagador -->
-                    <div class="space-y-2 border-t border-gray-100 pt-4">
+                    <div class="space-y-2 border-t border-gray-100 dark:border-gray-800 pt-4">
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Pagador / Cliente</h4>
-                        <div class="text-base font-semibold text-gray-900">
+                        <div class="text-base font-semibold text-gray-900 dark:text-gray-100">
                             {{ receipt.payer_name }}
                         </div>
-                        <p v-if="receipt.payer_document" class="text-xs text-gray-500">
+                        <p v-if="receipt.payer_document" class="text-xs text-gray-500 dark:text-gray-400">
                             CPF/CNPJ: {{ receipt.payer_document }}
                         </p>
                     </div>
 
                     <!-- Descrição / Referente a -->
-                    <div class="space-y-2 border-t border-gray-100 pt-4">
+                    <div class="space-y-2 border-t border-gray-100 dark:border-gray-800 pt-4">
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Referente a</h4>
-                        <p class="text-sm text-gray-800 whitespace-pre-line leading-relaxed">
+                        <p class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-line leading-relaxed">
                             {{ receipt.description }}
                         </p>
                     </div>
 
                     <!-- Forma de Pagamento -->
-                    <div class="border-t border-gray-100 pt-4 flex justify-between items-center text-sm">
-                        <span class="text-gray-500">Forma de Pagamento:</span>
-                        <span class="font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded">
+                    <div class="border-t border-gray-100 dark:border-gray-800 pt-4 flex justify-between items-center text-sm">
+                        <span class="text-gray-500 dark:text-gray-400">Forma de Pagamento:</span>
+                        <span class="font-bold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded">
                             {{ formatPaymentMethod(receipt.payment_method) }}
                         </span>
                     </div>
 
                     <!-- Rodapé de Autenticação -->
-                    <div class="border-t border-gray-200 pt-6 text-center text-xs text-gray-400 space-y-1">
-                        <p v-if="receipt.issuer_snapshot?.receipt_footer" class="text-sm italic text-gray-600 mb-2">
+                    <div class="border-t border-gray-200 dark:border-gray-800 pt-6 text-center text-xs text-gray-400 space-y-1">
+                        <p v-if="receipt.issuer_snapshot?.receipt_footer" class="text-sm italic text-gray-600 dark:text-gray-300 mb-2">
                             {{ receipt.issuer_snapshot.receipt_footer }}
                         </p>
                         <p>Documento digital emitido através da plataforma GestÁgil.</p>
-                        <p>Código de Autenticidade: <span class="font-mono font-bold text-indigo-600">{{ receipt.code }}</span></p>
+                        <p>Código de Autenticidade: <span class="font-mono font-bold text-indigo-600 dark:text-indigo-400">{{ receipt.code }}</span></p>
                     </div>
                 </div>
             </div>
@@ -306,10 +306,10 @@ const formatDate = (dateStr: string): string => {
         <!-- Modal de Cancelamento -->
         <Modal :show="showCancelModal" @close="showCancelModal = false">
             <div class="p-6">
-                <h2 class="text-lg font-bold text-gray-900">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">
                     Cancelar Recibo Nº {{ receipt.formatted_number }}
                 </h2>
-                <p class="mt-2 text-sm text-gray-600">
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
                     Atenção: uma vez cancelado, o recibo permanecerá no histórico com a tarja de "CANCELADO" para auditoria e prestação de contas.
                 </p>
 
@@ -320,7 +320,7 @@ const formatDate = (dateStr: string): string => {
                         v-model="cancelForm.cancel_reason"
                         rows="3"
                         required
-                        class="mt-1 block w-full rounded-md border-gray-300 text-sm focus:border-rose-500 focus:ring-rose-500"
+                        class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 text-sm focus:border-rose-500 focus:ring-rose-500"
                         placeholder="Ex: Valor incorreto, devolução do pagamento, etc."
                     ></textarea>
                     <InputError class="mt-2" :message="cancelForm.errors.cancel_reason" />
@@ -344,10 +344,10 @@ const formatDate = (dateStr: string): string => {
         <!-- Modal de Envio por E-mail -->
         <Modal :show="showEmailModal" @close="showEmailModal = false">
             <div class="p-6">
-                <h2 class="text-lg font-bold text-gray-900">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">
                     Enviar Recibo por E-mail
                 </h2>
-                <p class="mt-2 text-sm text-gray-600">
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
                     O cliente receberá uma mensagem com o resumo e o arquivo PDF oficial em anexo.
                 </p>
 

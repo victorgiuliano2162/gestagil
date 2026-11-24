@@ -9,6 +9,7 @@ use App\Models\Receipt;
 use App\Models\Transaction;
 use App\Models\TransactionCategory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,6 +47,26 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit');
+    }
+
+    /**
+     * Update the user's preferred color theme.
+     */
+    public function updateTheme(Request $request): JsonResponse|RedirectResponse
+    {
+        $validated = $request->validate([
+            'theme' => ['required', 'in:light,dark,system'],
+        ]);
+
+        $request->user()->update([
+            'theme' => $validated['theme'],
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['theme' => $validated['theme']]);
+        }
+
+        return back();
     }
 
     /**

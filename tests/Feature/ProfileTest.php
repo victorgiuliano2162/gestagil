@@ -1,6 +1,14 @@
 <?php
 
+use App\Enums\AppointmentStatus;
+use App\Enums\PaymentMethod;
+use App\Models\Appointment;
+use App\Models\Client;
+use App\Models\Receipt;
+use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 test('profile page is displayed', function () {
     $user = User::factory()->create();
@@ -70,20 +78,20 @@ test('user can delete their account', function () {
 test('user can delete account with full relational graph in reverse topological order', function () {
     $user = User::factory()->withBusinessProfile()->withDefaultCategories()->create();
 
-    $client = \App\Models\Client::create([
+    $client = Client::create([
         'user_id' => $user->id,
         'name' => 'Cliente Vinculado',
     ]);
 
-    $appointment = \App\Models\Appointment::create([
+    $appointment = Appointment::create([
         'user_id' => $user->id,
         'client_id' => $client->id,
         'service_description' => 'Serviço',
         'service_at' => now(),
-        'status' => \App\Enums\AppointmentStatus::Completed,
+        'status' => AppointmentStatus::Completed,
     ]);
 
-    $transaction = \App\Models\Transaction::create([
+    $transaction = Transaction::create([
         'user_id' => $user->id,
         'client_id' => $client->id,
         'appointment_id' => $appointment->id,
@@ -91,14 +99,14 @@ test('user can delete account with full relational graph in reverse topological 
         'amount_cents' => 5000,
         'occurred_on' => now()->toDateString(),
         'description' => 'Venda',
-        'payment_method' => \App\Enums\PaymentMethod::Pix,
+        'payment_method' => PaymentMethod::Pix,
     ]);
 
-    \App\Models\Receipt::create([
+    Receipt::create([
         'user_id' => $user->id,
         'transaction_id' => $transaction->id,
         'client_id' => $client->id,
-        'code' => \Illuminate\Support\Str::uuid()->toString(),
+        'code' => Str::uuid()->toString(),
         'year' => (int) now()->format('Y'),
         'number' => 1,
         'status' => 'issued',
@@ -146,18 +154,52 @@ test('correct password must be provided to delete account', function () {
 });
 
 test('deleting account removes business profile logo from local disk', function () {
-    \Illuminate\Support\Facades\Storage::fake('local');
+    Storage::fake('local');
 
     $user = User::factory()->withBusinessProfile()->create();
     $logoPath = 'logos/user-logo.png';
-    \Illuminate\Support\Facades\Storage::disk('local')->put($logoPath, 'fake-image-content');
+    Storage::disk('local')->put($logoPath, 'fake-image-content');
     $user->businessProfile->update(['logo_path' => $logoPath]);
 
-    \Illuminate\Support\Facades\Storage::disk('local')->assertExists($logoPath);
+    Storage::disk('local')->assertExists($logoPath);
 
     $this->actingAs($user)
         ->delete('/profile', ['password' => 'password'])
         ->assertRedirect('/');
 
-    \Illuminate\Support\Facades\Storage::disk('local')->assertMissing($logoPath);
+    Storage::disk('local')->assertMissing($logoPath);
+});
+
+test('user can update their preferred color theme', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->patchJson('/profile/theme', ['theme' => 'dark'])
+        ->assertOk()
+        ->assertJson(['theme' => 'dark']);
+
+    expect($user->refresh()->theme)->toBe('dark');
+
+    $this->actingAs($user)
+        ->patchJson('/profile/theme', ['theme' => 'light'])
+        ->assertOk()
+        ->assertJson(['theme' => 'light']);
+
+    expect($user->refresh()->theme)->toBe('light');
+
+    $this->actingAs($user)
+        ->patchJson('/profile/theme', ['theme' => 'system'])
+        ->assertOk()
+        ->assertJson(['theme' => 'system']);
+
+    expect($user->refresh()->theme)->toBe('system');
+});
+
+test('invalid color theme is rejected', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->patchJson('/profile/theme', ['theme' => 'neon'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('theme');
 });

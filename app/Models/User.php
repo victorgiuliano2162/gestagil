@@ -12,12 +12,21 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'terms_accepted_at'])]
+#[Fillable(['name', 'email', 'password', 'terms_accepted_at', 'theme'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    /**
+     * Default model attributes.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'theme' => 'system',
+    ];
 
     /**
      * Get the attributes that should be cast.

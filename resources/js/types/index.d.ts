@@ -1,8 +1,11 @@
+export type ThemeMode = 'light' | 'dark' | 'system';
+
 export interface User {
     id: number;
     name: string;
     email: string;
     email_verified_at?: string;
+    theme?: ThemeMode;
 }
 
 export type PageProps<

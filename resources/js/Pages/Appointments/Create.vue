@@ -18,9 +18,22 @@ interface Client {
     phone_e164: string | null;
 }
 
+interface Category {
+    id: number;
+    name: string;
+    color: string | null;
+}
+
+interface PaymentMethodOption {
+    value: string;
+    label: string;
+}
+
 const props = defineProps<{
     clients: Client[];
     selectedClientId?: number | null;
+    incomeCategories: Category[];
+    paymentMethods: PaymentMethodOption[];
 }>();
 
 // Data/hora atual no fuso local padrão formato YYYY-MM-DDTHH:mm
@@ -32,6 +45,10 @@ const form = useForm({
     service_at: nowIso,
     expected_amount: '',
     technical_notes: '',
+    is_completed_and_paid: false,
+    payment_method: 'pix',
+    category_id: '' as number | '',
+    issue_receipt: false,
 });
 
 const clientList = ref<Client[]>([...props.clients]);
@@ -140,12 +157,16 @@ const submit = () => {
                             </div>
 
                             <div>
-                                <InputLabel for="expected_amount" value="Valor Previsto (R$)" />
+                                <InputLabel
+                                    for="expected_amount"
+                                    :value="form.is_completed_and_paid ? 'Valor Recebido (R$) *' : 'Valor Previsto (R$)'"
+                                />
                                 <TextInput
                                     id="expected_amount"
                                     type="number"
                                     step="0.01"
-                                    min="0"
+                                    :min="form.is_completed_and_paid ? '0.01' : '0'"
+                                    :required="form.is_completed_and_paid"
                                     class="mt-1 block w-full"
                                     v-model="form.expected_amount"
                                     placeholder="Ex: 150.00"
@@ -181,14 +202,87 @@ const submit = () => {
                             <InputError class="mt-2" :message="form.errors.technical_notes" />
                         </div>
 
+                        <!-- Concluir e receber na hora (Opção B) -->
+                        <div class="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4 space-y-4">
+                            <label class="flex items-start space-x-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    v-model="form.is_completed_and_paid"
+                                    class="mt-0.5 rounded border-gray-300 text-emerald-600 shadow-sm focus:ring-emerald-500"
+                                />
+                                <div>
+                                    <span class="text-sm font-semibold text-gray-900">
+                                        Já concluído e recebido na hora
+                                    </span>
+                                    <p class="text-xs text-gray-600">
+                                        Conclui o atendimento e já registra a entrada no fluxo de caixa em 1 clique.
+                                    </p>
+                                </div>
+                            </label>
+
+                            <div v-if="form.is_completed_and_paid" class="space-y-4 pt-2 border-t border-emerald-200">
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <InputLabel for="payment_method" value="Forma de Pagamento *" />
+                                        <select
+                                            id="payment_method"
+                                            v-model="form.payment_method"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+                                            required
+                                        >
+                                            <option v-for="m in paymentMethods" :key="m.value" :value="m.value">
+                                                {{ m.label }}
+                                            </option>
+                                        </select>
+                                        <InputError class="mt-2" :message="form.errors.payment_method" />
+                                    </div>
+
+                                    <div>
+                                        <InputLabel for="category_id" value="Categoria da Entrada" />
+                                        <select
+                                            id="category_id"
+                                            v-model="form.category_id"
+                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+                                        >
+                                            <option value="">Sem categoria</option>
+                                            <option v-for="cat in incomeCategories" :key="cat.id" :value="cat.id">
+                                                {{ cat.name }}
+                                            </option>
+                                        </select>
+                                        <InputError class="mt-2" :message="form.errors.category_id" />
+                                    </div>
+                                </div>
+
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        v-model="form.issue_receipt"
+                                        class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                    />
+                                    <span class="text-sm font-medium text-gray-800">
+                                        Emitir recibo em seguida
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
                         <!-- Ações -->
                         <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
                             <Link :href="route('appointments.index')">
                                 <SecondaryButton type="button">Cancelar</SecondaryButton>
                             </Link>
 
-                            <PrimaryButton :disabled="form.processing">
-                                Iniciar Atendimento
+                            <PrimaryButton
+                                :disabled="form.processing"
+                                :class="form.is_completed_and_paid ? '!bg-emerald-600 hover:!bg-emerald-500' : ''"
+                            >
+                                {{
+                                    form.is_completed_and_paid
+                                        ? form.issue_receipt
+                                            ? 'Concluir e Emitir Recibo'
+                                            : 'Concluir e Registrar Recebimento'
+                                        : 'Iniciar Atendimento'
+                                }}
                             </PrimaryButton>
                         </div>
                     </form>

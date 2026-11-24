@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AppointmentStatus;
+use App\Enums\PaymentMethod;
 use App\Http\Requests\AppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Client;
+use App\Models\Transaction;
+use App\Models\TransactionCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -62,22 +66,70 @@ class AppointmentController extends Controller
     public function create(Request $request): Response
     {
         $clients = Client::orderBy('name')->get(['id', 'name', 'phone_e164']);
+        $incomeCategories = TransactionCategory::where('type', 'income')
+            ->orderBy('name')
+            ->get(['id', 'name', 'color']);
 
         return Inertia::render('Appointments/Create', [
             'clients' => $clients,
             'selectedClientId' => $request->integer('client_id') ?: null,
+            'incomeCategories' => $incomeCategories,
+            'paymentMethods' => collect(PaymentMethod::cases())->map(fn ($m) => [
+                'value' => $m->value,
+                'label' => $m->label(),
+            ]),
         ]);
     }
 
     public function store(AppointmentRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        $isCompletedAndPaid = (bool) ($data['is_completed_and_paid'] ?? false);
+        $issueReceipt = $isCompletedAndPaid && (bool) ($data['issue_receipt'] ?? false);
+        $paymentMethod = $data['payment_method'] ?? 'pix';
+        $categoryId = $data['category_id'] ?? null;
+
+        unset($data['is_completed_and_paid'], $data['issue_receipt'], $data['payment_method'], $data['category_id']);
+
         if (isset($data['expected_amount'])) {
             $data['expected_amount_cents'] = (int) round($data['expected_amount'] * 100);
             unset($data['expected_amount']);
         }
 
-        $appointment = Appointment::create($data);
+        if ($isCompletedAndPaid) {
+            $data['status'] = AppointmentStatus::Completed;
+            $data['completed_at'] = now();
+        }
+
+        [$appointment, $transaction] = DB::transaction(function () use ($data, $isCompletedAndPaid, $paymentMethod, $categoryId) {
+            $appointment = Appointment::create($data);
+            $transaction = null;
+
+            if ($isCompletedAndPaid) {
+                $transaction = Transaction::create([
+                    'type' => 'income',
+                    'amount_cents' => $appointment->expected_amount_cents,
+                    'occurred_on' => now()->toDateString(),
+                    'description' => "Recebimento: {$appointment->service_description}",
+                    'payment_method' => $paymentMethod,
+                    'category_id' => $categoryId,
+                    'client_id' => $appointment->client_id,
+                    'appointment_id' => $appointment->id,
+                ]);
+            }
+
+            return [$appointment, $transaction];
+        });
+
+        if ($issueReceipt && $transaction) {
+            return redirect()->route('receipts.create', ['transaction_id' => $transaction->id])
+                ->with('success', 'Atendimento concluído e recebimento registrado! Revise os dados para emitir o recibo.');
+        }
+
+        if ($isCompletedAndPaid) {
+            return redirect()->route('appointments.show', $appointment)
+                ->with('success', 'Atendimento concluído e recebimento registrado no caixa!');
+        }
 
         return redirect()->route('appointments.show', $appointment)
             ->with('success', 'Atendimento agendado com sucesso!');

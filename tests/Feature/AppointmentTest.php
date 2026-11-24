@@ -271,3 +271,59 @@ test('quick client creation, client show history and appointment filters work', 
             ->where('appointments.data.0.service_description', 'Serviço do Rápido')
         );
 });
+
+test('appointment can be created as already completed and paid in one step with optional redirect to receipt', function () {
+    $user = User::factory()->withDefaultCategories()->create();
+    $client = Client::create(['user_id' => $user->id, 'name' => 'Cliente Balcão']);
+    $incomeCategory = $user->categories()->where('type', 'income')->first();
+
+    // Missing amount when is_completed_and_paid is true fails validation
+    $this->actingAs($user)->post(route('appointments.store'), [
+        'client_id' => $client->id,
+        'service_description' => 'Venda rápida sem valor',
+        'service_at' => now()->format('Y-m-d H:i:s'),
+        'is_completed_and_paid' => true,
+        'payment_method' => 'pix',
+    ])->assertSessionHasErrors(['expected_amount']);
+
+    // Completed and paid without immediate receipt -> redirects to appointments.show
+    $response = $this->actingAs($user)->post(route('appointments.store'), [
+        'client_id' => $client->id,
+        'service_description' => 'Troca de cabo USB',
+        'service_at' => now()->format('Y-m-d H:i:s'),
+        'expected_amount' => '80,00',
+        'is_completed_and_paid' => true,
+        'payment_method' => 'pix',
+        'category_id' => $incomeCategory->id,
+    ]);
+
+    $appt1 = Appointment::where('service_description', 'Troca de cabo USB')->first();
+    expect($appt1)->not->toBeNull()
+        ->and($appt1->status)->toBe(AppointmentStatus::Completed)
+        ->and($appt1->completed_at)->not->toBeNull();
+    $response->assertRedirect(route('appointments.show', $appt1));
+
+    $tx1 = Transaction::where('appointment_id', $appt1->id)->first();
+    expect($tx1)->not->toBeNull()
+        ->and($tx1->type)->toBe('income')
+        ->and($tx1->amount_cents)->toBe(8000)
+        ->and($tx1->category_id)->toBe($incomeCategory->id)
+        ->and($tx1->client_id)->toBe($client->id);
+
+    // Completed and paid WITH issue_receipt -> redirects directly to receipts.create
+    $response2 = $this->actingAs($user)->post(route('appointments.store'), [
+        'client_id' => $client->id,
+        'service_description' => 'Troca de bateria',
+        'service_at' => now()->format('Y-m-d H:i:s'),
+        'expected_amount' => '220,00',
+        'is_completed_and_paid' => true,
+        'payment_method' => 'card',
+        'issue_receipt' => true,
+    ]);
+
+    $appt2 = Appointment::where('service_description', 'Troca de bateria')->first();
+    $tx2 = Transaction::where('appointment_id', $appt2->id)->first();
+    expect($tx2)->not->toBeNull()
+        ->and($tx2->amount_cents)->toBe(22000);
+    $response2->assertRedirect(route('receipts.create', ['transaction_id' => $tx2->id]));
+});

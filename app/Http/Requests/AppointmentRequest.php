@@ -31,6 +31,8 @@ class AppointmentRequest extends FormRequest
 
     public function rules(): array
     {
+        $isCompletedAndPaid = $this->boolean('is_completed_and_paid');
+
         return [
             'client_id' => [
                 'required',
@@ -41,7 +43,22 @@ class AppointmentRequest extends FormRequest
             'service_description' => ['required', 'string', 'max:2000'],
             'service_at' => ['required', 'date'],
             'technical_notes' => ['nullable', 'string', 'max:2000'],
-            'expected_amount' => ['nullable', 'numeric', 'min:0'],
+            'expected_amount' => $isCompletedAndPaid
+                ? ['required', 'numeric', 'min:0.01', 'max:9999999.99']
+                : ['nullable', 'numeric', 'min:0', 'max:9999999.99'],
+            'is_completed_and_paid' => ['nullable', 'boolean'],
+            'issue_receipt' => ['nullable', 'boolean'],
+            'payment_method' => [
+                Rule::requiredIf($isCompletedAndPaid),
+                'nullable',
+                'in:pix,cash,card,other',
+            ],
+            'category_id' => [
+                'nullable',
+                Rule::exists('transaction_categories', 'id')
+                    ->where('user_id', $this->user()->id)
+                    ->where('type', 'income'),
+            ],
         ];
     }
 
@@ -52,7 +69,11 @@ class AppointmentRequest extends FormRequest
             'client_id.exists' => 'O cliente selecionado não foi encontrado.',
             'service_description.required' => 'Informe a descrição do serviço / atendimento.',
             'service_at.required' => 'Informe a data e horário do atendimento.',
+            'expected_amount.required' => 'Informe o valor recebido para concluir o atendimento na hora.',
+            'expected_amount.min' => 'O valor recebido deve ser maior que zero.',
+            'expected_amount.max' => 'O valor máximo permitido é R$ 9.999.999,99.',
             'expected_amount.numeric' => 'O valor previsto deve ser numérico.',
+            'payment_method.required' => 'Selecione a forma de pagamento.',
         ];
     }
 }

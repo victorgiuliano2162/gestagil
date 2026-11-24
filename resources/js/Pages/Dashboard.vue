@@ -72,22 +72,16 @@ const formatDate = (dateStr: string): string => {
                 </div>
                 <div class="mt-3 sm:mt-0 flex flex-wrap gap-2">
                     <Link
-                        :href="route('transactions.create', { type: 'income' })"
-                        class="inline-flex items-center rounded-md bg-emerald-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+                        :href="route('appointments.create')"
+                        class="inline-flex items-center rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
-                        + Entrada
+                        + Atendimento
                     </Link>
                     <Link
                         :href="route('transactions.create', { type: 'expense' })"
                         class="inline-flex items-center rounded-md bg-rose-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-rose-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-600"
                     >
                         - Despesa
-                    </Link>
-                    <Link
-                        :href="route('appointments.create')"
-                        class="inline-flex items-center rounded-md bg-indigo-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                        + Atendimento
                     </Link>
                 </div>
             </div>
@@ -143,7 +137,7 @@ const formatDate = (dateStr: string): string => {
                         </Link>
 
                         <Link
-                            :href="route('transactions.create', { type: 'income' })"
+                            :href="route('appointments.create')"
                             class="flex items-center p-3 rounded-lg border transition"
                             :class="checklist.first_transaction_recorded ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-gray-200 hover:border-indigo-300'"
                         >
@@ -152,8 +146,8 @@ const formatDate = (dateStr: string): string => {
                                 {{ checklist.first_transaction_recorded ? '✓' : '3' }}
                             </span>
                             <div>
-                                <h4 class="text-sm font-medium text-gray-900">Registrar Venda / Entrada</h4>
-                                <p class="text-xs text-gray-500">Registre sua primeira venda no caixa</p>
+                                <h4 class="text-sm font-medium text-gray-900">Registrar Primeiro Atendimento</h4>
+                                <p class="text-xs text-gray-500">Agende ou registre um serviço já recebido</p>
                             </div>
                         </Link>
                     </div>

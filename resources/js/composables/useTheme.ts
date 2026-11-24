@@ -102,17 +102,15 @@ export function useTheme() {
         }
     };
 
-    const cycleTheme = (): void => {
-        const order: ThemeMode[] = ['light', 'dark', 'system'];
-        const nextIndex = (order.indexOf(theme.value) + 1) % order.length;
-        void setTheme(order[nextIndex]);
+    const toggleTheme = (): void => {
+        void setTheme(resolvedTheme.value === 'dark' ? 'light' : 'dark');
     };
 
     return {
         theme,
         resolvedTheme,
         setTheme,
-        cycleTheme,
+        toggleTheme,
         initTheme,
     };
 }

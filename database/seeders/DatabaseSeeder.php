@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Appointment;
 use App\Models\BusinessProfile;
 use App\Models\Client;
 use App\Models\User;
@@ -54,12 +55,20 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        $this->seedAppointmentsForUser($mainUser, 30);
+
         // 2. Garante dados para o usuário ativo existente (ex: User id=1), permitindo validação imediata no navegador
         $activeUser = User::where('id', 1)->first();
-        if ($activeUser && $activeUser->id !== $mainUser->id && $activeUser->clients()->count() === 0) {
-            Client::factory()->count(15)->create([
-                'user_id' => $activeUser->id,
-            ]);
+        if ($activeUser && $activeUser->id !== $mainUser->id) {
+            app(DefaultCategoriesSeeder::class)->run($activeUser);
+
+            if ($activeUser->clients()->count() === 0) {
+                Client::factory()->count(15)->create([
+                    'user_id' => $activeUser->id,
+                ]);
+            }
+
+            $this->seedAppointmentsForUser($activeUser, 25);
         }
 
         // 3. Usuários adicionais para validação de isolamento multi-inquilino (IDOR) e extrações comparativas
@@ -106,6 +115,28 @@ class DatabaseSeeder extends Seeder
                     'user_id' => $user->id,
                 ]);
             }
+
+            $this->seedAppointmentsForUser($user, 15);
         }
+    }
+
+    private function seedAppointmentsForUser(User $user, int $count): void
+    {
+        if (Appointment::withoutGlobalScopes()->where('user_id', $user->id)->exists()) {
+            return;
+        }
+
+        $clients = Client::withoutGlobalScopes()->where('user_id', $user->id)->get();
+        if ($clients->isEmpty()) {
+            return;
+        }
+
+        Appointment::factory()
+            ->count($count)
+            ->state(fn () => [
+                'user_id' => $user->id,
+                'client_id' => $clients->random()->id,
+            ])
+            ->create();
     }
 }
